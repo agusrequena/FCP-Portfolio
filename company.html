@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company | FCP Portfolio Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body data-page="company">
+  <div class="shell">
+    <header class="topbar">
+      <div class="wrap">
+        <div class="brandLockup">
+          <img src="https://images.squarespace-cdn.com/content/v1/5966931bd2b8571d854096b4/000352d1-ba23-47e7-9294-66bf70ab2279/fcp%2Blogo%2Bwhite%2B2.png?format=1500w" alt="FCP logo">
+          <div>
+            <div class="brandTitle">Company Detail</div>
+            <div class="brandSub">Operating metrics, leverage and public peer context</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="index.html">Portfolio</a>
+          <a href="peers.html">Peer Monitor</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page">
+      <div class="wrap">
+        <section class="hero" id="companyHero"></section>
+
+        <section class="section">
+          <div class="sectionHead">
+            <div>
+              <div class="eyebrow">Companies</div>
+              <h2 class="pageTitle">Switch company</h2>
+            </div>
+          </div>
+          <div class="companyNav" id="companyNav"></div>
+        </section>
+
+        <section class="section">
+          <div class="sectionHead">
+            <div>
+              <div class="eyebrow">Operating View</div>
+              <h2 class="pageTitle">Internal metrics</h2>
+            </div>
+            <div class="metricSwitch" id="metricSwitch"></div>
+          </div>
+          <div class="split">
+            <article class="chartCard">
+              <div class="chartHead">
+                <div>
+                  <h3 class="chartTitle">Operating performance</h3>
+                  <div class="small muted">Workbook extraction from the Output tab.</div>
+                </div>
+              </div>
+              <div class="chart" id="internalChart"></div>
+            </article>
+            <article class="chartCard">
+              <div class="chartHead">
+                <div>
+                  <h3 class="chartTitle">Leverage path</h3>
+                  <div class="small muted">Workbook extraction from the Leverage tab.</div>
+                </div>
+              </div>
+              <div class="chart" id="leverageChart"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="sectionHead">
+            <div>
+              <div class="eyebrow">Public Peers</div>
+              <h2 class="pageTitle">Market snapshot and price context</h2>
+            </div>
+            <div class="metricSwitch" id="peerGroups"></div>
+          </div>
+          <div class="four" id="peerSummary"></div>
+          <div class="peerGrid" id="peerSnapshots" style="margin-top:16px"></div>
+          <article class="chartCard" style="margin-top:16px">
+            <div class="chartHead">
+              <div>
+                <h3 class="chartTitle">Normalized peer price performance</h3>
+                <div class="small muted">One-year monthly series, indexed to 100 at the first available point.</div>
+              </div>
+            </div>
+            <div class="chart compact" id="peerChart"></div>
+          </article>
+        </section>
+
+        <section class="section">
+          <div class="sectionHead">
+            <div>
+              <div class="eyebrow">Dataroom</div>
+              <h2 class="pageTitle">Document placeholders</h2>
+            </div>
+          </div>
+          <div class="docGrid" id="companyDocs"></div>
+        </section>
+
+        <section class="section" id="companyNotes"></section>
+
+        <footer class="footer">
+          This page intentionally separates internal operating data from public market context so the story is easier to follow company by company.
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script src="site-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

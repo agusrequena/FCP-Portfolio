@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FCP Portfolio Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="home">
+  <div class="shell">
+    <header class="topbar">
+      <div class="wrap">
+        <div class="brandLockup">
+          <img src="https://images.squarespace-cdn.com/content/v1/5966931bd2b8571d854096b4/000352d1-ba23-47e7-9294-66bf70ab2279/fcp%2Blogo%2Bwhite%2B2.png?format=1500w" alt="FCP logo">
+          <div>
+            <div class="brandTitle">Portfolio Intelligence</div>
+            <div class="brandSub">Institutional static site for internal portfolio review</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <a class="active" href="index.html">Portfolio</a>
+          <a href="peers.html">Peer Monitor</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page">
+      <div class="wrap">
+        <section class="hero">
+          <div class="heroGrid">
+            <div class="heroCard">
+              <div class="eyebrow">FCP Overview</div>
+              <h1>A simpler way to navigate the FCP portfolio</h1>
+              <p class="lead">The site is now split into a clean portfolio home, a dedicated company page for each deal, and a separate peer monitor. Internal workbook metrics stay visible, while public peers now show real market snapshots instead of empty placeholders.</p>
+              <div class="inlineActions" style="margin-top:16px">
+                <a class="btn" href="peers.html">Open peer monitor</a>
+                <a class="btn secondary" href="company.html?id=moneybox">Open a sample company page</a>
+              </div>
+              <div class="stats" id="heroStats"></div>
+            </div>
+            <div id="sourceStatus"></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="sectionHead">
+            <div>
+              <div class="eyebrow">Navigation</div>
+              <h2 class="pageTitle">Jump by portfolio phase</h2>
+            </div>
+            <div class="chipRow">
+              <button class="chip active" data-filter-era="all">All</button>
+              <button class="chip" data-filter-era="pre">Pre-Quantic</button>
+              <button class="chip" data-filter-era="quantic">FCP-Quantic</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="sectionHead">
+            <div>
+              <div class="eyebrow">Pre-Quantic</div>
+              <h2 class="pageTitle">FCP I to FCP XII</h2>
+            </div>
+          </div>
+          <div class="companyGrid" id="preCompanies"></div>
+        </section>
+
+        <section class="section">
+          <div class="sectionHead">
+            <div>
+              <div class="eyebrow">FCP-Quantic</div>
+              <h2 class="pageTitle">FCP XIII to FCP XVIII</h2>
+            </div>
+          </div>
+          <div class="companyGrid" id="quanticCompanies"></div>
+        </section>
+
+        <footer class="footer">
+          Static GitHub Pages build. Internal sources come from the uploaded workbook; public peer data is rendered from a pre-baked Yahoo Finance market snapshot to avoid empty pages when live APIs fail.
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script src="site-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
