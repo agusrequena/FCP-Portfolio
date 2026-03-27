@@ -1,435 +1,1326 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FCP Portfolio Dashboard</title>
+<title>FCP Portfolio Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#06091a;--bg2:#0b1024;--card:#101828;--card2:#162032;--border:#1e2d45;--blue:#3b82f6;--blue2:#60a5fa;--amber:#f59e0b;--green:#10b981;--red:#ef4444;--text:#f1f5f9;--muted:#64748b;--muted2:#94a3b8;}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;min-height:100vh;font-size:13px;line-height:1.5;overflow-x:hidden}
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:56px;position:fixed;top:0;left:0;right:0;z-index:200;gap:16px}
-.logo-wrap{display:flex;align-items:center;gap:10px;min-width:220px}
-.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;flex-shrink:0}
-.logo-text{font-size:16px;font-weight:800;letter-spacing:.03em}
-.logo-sub{font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-.header-search{flex:1;max-width:320px}
-.header-search input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:12px;outline:none;transition:border .15s}
-.header-search input:focus{border-color:var(--blue)}
-.header-search input::placeholder{color:var(--muted)}
-.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted)}
-.hbadge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.04em}
-.hbadge.pre{background:rgba(59,130,246,.15);color:#60a5fa}
-.hbadge.q{background:rgba(139,92,246,.15);color:#a78bfa}
-.layout{display:flex;margin-top:56px;min-height:calc(100vh - 56px)}
-.sidebar{width:248px;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:56px;bottom:0;overflow-y:auto;flex-shrink:0;padding-bottom:16px}
-.sidebar-section{padding:14px 10px 6px}
-.sidebar-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:0 6px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.co-item{display:flex;align-items:center;gap:9px;padding:8px 7px;border-radius:8px;cursor:pointer;transition:background .1s;margin-bottom:2px;border-left:2px solid transparent}
-.co-item:hover{background:var(--card)}
-.co-item.active{background:rgba(59,130,246,.12);border-left-color:#60a5fa}
-.co-item.active.qact{background:rgba(139,92,246,.12);border-left-color:#a78bfa}
-.co-logo-sm{width:28px;height:28px;border-radius:6px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800}
-.co-logo-sm img{width:100%;height:100%;object-fit:contain;display:block}
-.co-info{flex:1;min-width:0}
-.co-num{font-size:9px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.04em}
-.co-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.co-sec{font-size:10px;color:var(--muted)}
-.main{margin-left:248px;flex:1;padding:24px;min-height:100%}
-.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:65vh;text-align:center;padding:40px}
-.welcome h1{font-size:26px;font-weight:800;margin-bottom:8px}
-.welcome p{color:var(--muted2);max-width:420px;line-height:1.7;font-size:13px}
-.welcome-grid{display:flex;gap:28px;margin-top:32px;flex-wrap:wrap;justify-content:center}
-.wg{text-align:center}
-.wg-n{font-size:30px;font-weight:800;color:var(--blue2)}
-.wg-l{font-size:11px;color:var(--muted);margin-top:3px}
-.co-hdr{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border);flex-wrap:wrap}
-.co-logo-lg{width:54px;height:54px;border-radius:12px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900}
-.co-logo-lg img{width:100%;height:100%;object-fit:contain;display:block}
-.co-title{font-size:22px;font-weight:800;line-height:1.1}
-.co-id{font-size:11px;color:var(--muted);margin-top:3px}
-.co-badges{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
-.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px}
-.badge.pre{background:rgba(59,130,246,.15);color:#60a5fa}
-.badge.q{background:rgba(139,92,246,.15);color:#a78bfa}
-.badge.sec{background:rgba(16,185,129,.12);color:#34d399}
-.badge.entry{background:rgba(245,158,11,.18);color:#fbbf24;font-size:11px;padding:4px 10px}
-.co-desc{font-size:12px;color:var(--muted2);max-width:560px;line-height:1.65;margin-top:4px}
-.tabs{display:flex;gap:2px;margin-bottom:20px;background:var(--card);border-radius:10px;padding:4px;width:fit-content}
-.tab-btn{background:none;border:none;color:var(--muted2);padding:8px 18px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s}
-.tab-btn:hover{color:var(--text)}
-.tab-btn.active{background:var(--card2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.35)}
-.tab-content{display:none}
-.tab-content.active{display:block}
-.metrics-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px;margin-bottom:18px}
-.mc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
-.mc-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px}
-.mc-val{font-size:20px;font-weight:700;line-height:1}
-.mc-sub{font-size:10px;color:var(--muted2);margin-top:3px}
-.cgreen{color:#34d399}.cblue{color:#60a5fa}.camber{color:#f59e0b}.cred{color:#f87171}.cwhite{color:#fff}
-.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:14px}
-.chart-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
-.chart-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2)}
-.chart-hint{font-size:10px;color:var(--muted);font-style:italic;text-align:right;max-width:320px}
-.chart-note{font-size:10px;color:var(--muted);text-align:center;margin-top:8px}
-.chart-wrap{position:relative}
-.grp-div{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
-.grp-div::after{content:'';flex:1;height:1px;background:var(--border)}
-.no-comps{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:48px;text-align:center;color:var(--muted)}
-.jfk-note{font-size:12px;color:var(--muted2);background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:8px;padding:12px 16px;margin-bottom:14px;line-height:1.65}
-.dr-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.dr-title{font-size:15px;font-weight:700}
-.dr-note{font-size:11px;color:var(--muted2);background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:8px;padding:10px 14px;line-height:1.65;margin-bottom:16px}
-.btn{background:var(--blue);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:opacity .15s;display:inline-flex;align-items:center;gap:5px;text-decoration:none}
-.btn:hover{opacity:.85}
-.btn-sm{padding:5px 10px;font-size:11px}
-.btn-ghost{background:var(--card2);color:var(--muted2)}
-.btn-danger{background:#dc2626;color:#fff}
-.dr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
-.dr-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px}
-.dr-type{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
-.dr-name{font-size:13px;font-weight:600;margin-bottom:5px}
-.dr-desc{font-size:11px;color:var(--muted2);line-height:1.5;margin-bottom:10px}
-.dr-foot{display:flex;align-items:center;justify-content:space-between}
-.dr-date{font-size:10px;color:var(--muted)}
-.dr-empty{grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--muted)}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
-.modal-overlay.hidden{display:none}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;width:100%;max-width:480px}
-.modal-title{font-size:15px;font-weight:700;margin-bottom:18px}
-.fg{margin-bottom:13px}
-.fg label{font-size:11px;font-weight:600;color:var(--muted2);display:block;margin-bottom:5px}
-.fi,.fs,.ft{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:12px;outline:none;transition:border .15s;font-family:inherit}
-.fi:focus,.fs:focus,.ft:focus{border-color:var(--blue)}
-.ft{resize:vertical;min-height:65px}
-.fs option{background:var(--card)}
-.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
-@media(max-width:1100px){.sidebar{width:210px}.main{margin-left:210px}}
-@media(max-width:860px){.sidebar{display:none}.main{margin-left:0}}
-@media(max-width:600px){.metrics-row{grid-template-columns:repeat(2,1fr)}.main{padding:14px}}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e17;--surface:#111827;--surface2:#1a2032;--surface3:#1f2937;
+  --border:#1f2937;--border2:#2d3748;
+  --blue:#3b82f6;--violet:#8b5cf6;--emerald:#10b981;--amber:#f59e0b;
+  --text:#f9fafb;--text2:#9ca3af;--text3:#6b7280;
+  --shadow:0 4px 24px rgba(0,0,0,.5);
+}
+html,body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+
+/* LAYOUT */
+#app{display:grid;grid-template-rows:56px 1fr;grid-template-columns:260px 1fr;height:100vh}
+#header{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:0;z-index:100}
+#sidebar{grid-row:2;background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;display:flex;flex-direction:column}
+#main{grid-row:2;overflow-y:auto;padding:28px 32px}
+
+/* HEADER */
+.hlogo{font-size:22px;font-weight:900;letter-spacing:-1px;color:var(--blue);margin-right:24px;white-space:nowrap}
+.hlogo span{color:var(--text3);font-size:10px;font-weight:500;letter-spacing:1px;display:block;margin-top:-4px}
+.hsep{width:1px;height:28px;background:var(--border2);margin-right:24px}
+.hnav{display:flex;gap:4px;flex:1}
+.hnav button{background:none;border:none;color:var(--text2);font-size:12px;font-weight:500;
+  cursor:pointer;padding:6px 12px;border-radius:5px;transition:.15s;letter-spacing:.3px;text-transform:uppercase}
+.hnav button:hover{background:var(--surface2);color:var(--text)}
+.hnav button.active{background:rgba(59,130,246,.12);color:var(--blue)}
+.hstamp{font-size:10px;color:var(--text3);white-space:nowrap}
+
+/* SIDEBAR */
+.sb-section{padding:8px 0}
+.sb-label{padding:6px 16px;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--text3)}
+.sb-item{padding:9px 16px;cursor:pointer;font-size:12px;color:var(--text2);
+  display:flex;justify-content:space-between;align-items:center;
+  border-left:2px solid transparent;transition:.12s}
+.sb-item:hover{background:var(--surface2);color:var(--text)}
+.sb-item.active{background:var(--surface2);color:var(--blue);border-left-color:var(--blue)}
+.sb-item.active.q{color:var(--violet);border-left-color:var(--violet)}
+.sb-badge{font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;
+  border-radius:3px;letter-spacing:.3px}
+.sb-badge.pre{background:rgba(59,130,246,.15);color:var(--blue)}
+.sb-badge.q{background:rgba(139,92,246,.15);color:var(--violet)}
+.sb-divider{height:1px;background:var(--border);margin:8px 0}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* OVERVIEW */
+.ov-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px}
+.stat-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px}
+.stat-val{font-size:36px;font-weight:800;color:var(--text);line-height:1}
+.stat-sub{font-size:11px;color:var(--text2);margin-top:8px}
+.ov-section{margin-bottom:40px}
+.ov-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  color:var(--text3);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px}
+.ov-section-title .line{flex:1;height:1px;background:var(--border)}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.ov-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:14px;cursor:pointer;transition:.15s}
+.ov-card:hover{border-color:var(--blue);box-shadow:0 0 16px rgba(59,130,246,.1);transform:translateY(-1px)}
+.ov-card.q-card:hover{border-color:var(--violet);box-shadow:0 0 16px rgba(139,92,246,.1)}
+.ov-card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ov-logo{width:36px;height:36px;border-radius:5px;background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;
+  color:var(--blue);flex-shrink:0;overflow:hidden}
+.ov-logo img{width:100%;height:100%;object-fit:contain;padding:3px}
+.ov-logo.q-logo{color:var(--violet)}
+.ov-company-name{font-size:12px;font-weight:700;color:var(--text);line-height:1.3}
+.ov-sector{font-size:10px;color:var(--text3);margin-top:2px}
+.ov-badges{display:flex;gap:5px;flex-wrap:wrap}
+.badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.3px}
+.b-fund-pre{background:rgba(59,130,246,.15);color:var(--blue)}
+.b-fund-q{background:rgba(139,92,246,.15);color:var(--violet)}
+.b-sector{background:rgba(107,114,128,.15);color:var(--text2)}
+.b-metric{background:rgba(16,185,129,.12);color:var(--emerald)}
+.ov-entry{font-size:10px;color:var(--text2);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.ov-entry strong{color:var(--amber)}
+
+/* COMPANY DETAIL */
+.detail-header{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:24px;margin-bottom:24px}
+.detail-top{display:flex;align-items:flex-start;gap:20px}
+.detail-logo{width:72px;height:72px;border-radius:8px;background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;
+  color:var(--blue);flex-shrink:0;overflow:hidden}
+.detail-logo img{width:100%;height:100%;object-fit:contain;padding:6px}
+.detail-logo.q{color:var(--violet)}
+.detail-name{font-size:26px;font-weight:800;color:var(--text);line-height:1.1;margin-bottom:10px}
+.detail-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.detail-desc{font-size:12px;color:var(--text2);line-height:1.7;margin-top:10px;max-width:700px}
+.detail-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:16px;padding-top:20px;margin-top:20px;border-top:1px solid var(--border)}
+.dm-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px}
+.dm-val{font-size:20px;font-weight:700;color:var(--text)}
+.dm-val.highlight{color:var(--amber)}
+
+/* CHART CARDS */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:24px;margin-bottom:24px}
+.chart-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;
+  display:flex;align-items:center;justify-content:space-between}
+.chart-card-sub{font-size:10px;color:var(--text3);margin-bottom:16px}
+.chart-warn{font-size:10px;color:#d97706;background:rgba(245,158,11,.08);
+  border-left:2px solid #d97706;padding:6px 10px;border-radius:0 4px 4px 0;margin-bottom:14px;line-height:1.5}
+.chart-wrap{position:relative;height:340px}
+.chart-wrap.h260{height:260px}
+.chart-legend{display:flex;flex-wrap:wrap;gap:12px;padding-top:14px;margin-top:14px;
+  border-top:1px solid var(--border)}
+.legend-item{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--text2);
+  padding:3px 8px;border-radius:4px;transition:.12s;border:1px solid transparent}
+.legend-item:hover{border-color:var(--border2);background:var(--surface2)}
+.legend-item.dimmed{opacity:.35}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.legend-dash{width:16px;height:2px;flex-shrink:0;border-top:2px dashed #fff}
+
+/* PEERS */
+.peers-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:24px;margin-bottom:24px}
+.peers-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px}
+.peers-group-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--text3);margin-bottom:8px;margin-top:14px}
+.peers-list{display:flex;flex-wrap:wrap;gap:8px}
+.peer-chip{display:flex;align-items:center;gap:6px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:6px;padding:7px 10px}
+.peer-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.peer-chip-name{font-size:11px;font-weight:500;color:var(--text2)}
+.peer-chip-logo{width:20px;height:20px;overflow:hidden;border-radius:3px}
+.peer-chip-logo img{width:100%;height:100%;object-fit:contain}
+
+/* NO PEERS */
+.no-peers-box{padding:40px;text-align:center;color:var(--text3);background:var(--surface2);
+  border-radius:8px;font-size:12px;line-height:1.8}
+.no-peers-box .icon{font-size:28px;margin-bottom:10px}
+
+/* DATA ROOM */
+.dataroom-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:24px;margin-bottom:24px}
+.dataroom-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px}
+.dataroom-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.dr-btn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:7px;
+  padding:14px 14px;cursor:pointer;transition:.15s;text-align:left}
+.dr-btn:hover{border-color:var(--blue);background:rgba(59,130,246,.05)}
+.dr-btn .dr-icon{font-size:18px;margin-bottom:4px}
+.dr-btn .dr-name{font-size:11px;font-weight:600;color:var(--text2)}
+.dr-btn .dr-status{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px}
+
+/* NOTES */
+.notes-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:24px;margin-bottom:24px}
+.notes-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px}
+.notes-area{width:100%;min-height:110px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:6px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;
+  font-size:12px;line-height:1.7;resize:vertical}
+.notes-area:focus{outline:none;border-color:var(--blue)}
+
+/* ENTRY vs SECTOR CHART */
+.entry-badge-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.entry-chip{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600}
+.entry-chip.above{background:rgba(239,68,68,.12);color:#ef4444}
+.entry-chip.below{background:rgba(16,185,129,.12);color:#10b981}
+.entry-chip.inline{background:rgba(245,158,11,.12);color:#f59e0b}
+
+/* MODAL */
+#modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:999;align-items:center;justify-content:center}
+#modal-overlay.active{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border2);border-radius:10px;
+  padding:32px;max-width:480px;width:90%;position:relative;box-shadow:var(--shadow)}
+.modal-close-btn{position:absolute;top:16px;right:16px;background:none;border:none;
+  color:var(--text3);font-size:20px;cursor:pointer;line-height:1}
+.modal-close-btn:hover{color:var(--text)}
+.modal-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:12px}
+.modal-body{font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:20px}
+.modal-input{width:100%;background:var(--surface2);border:1px solid var(--border);
+  border-radius:6px;padding:10px 12px;color:var(--text);font-family:'Inter',sans-serif;
+  font-size:12px;margin-bottom:12px}
+.modal-input:focus{outline:none;border-color:var(--blue)}
+.modal-actions{display:flex;gap:8px}
+.modal-btn{padding:9px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.modal-btn.primary{background:var(--blue);border:none;color:#fff}
+.modal-btn.primary:hover{background:#2563eb}
+.modal-btn.ghost{background:none;border:1px solid var(--border2);color:var(--text2)}
+.modal-btn.ghost:hover{border-color:var(--text2);color:var(--text)}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo-wrap">
-    <div class="logo-icon">FCP</div>
-    <div><div class="logo-text">FCP Portfolio</div><div class="logo-sub">Financial Dashboard</div></div>
+<div id="app">
+  <div id="header">
+    <div class="hlogo">FCP<span>Portfolio Intelligence</span></div>
+    <div class="hsep"></div>
+    <div class="hnav">
+      <button class="active" onclick="showView('overview')">Dashboard</button>
+      <button onclick="showView('portfolio')">Portfolio</button>
+    </div>
+    <div class="hstamp" id="stamp"></div>
   </div>
-  <div class="header-search"><input type="text" id="searchInput" placeholder="Buscar compania..." oninput="filterSidebar(this.value)"></div>
-  <div class="header-right">
-    <span class="hbadge pre">I-XII Pre-Quantic</span>
-    <span class="hbadge q">XIII-XVIII Quantic</span>
-    <span style="color:var(--muted);font-size:10px">Datos 2021-2026E - LTM</span>
-  </div>
-</header>
-<div class="layout">
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label"><div class="sdot" style="background:#60a5fa"></div>Pre-Quantic (I-XII)</div>
-      <div id="listPre"></div>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-label"><div class="sdot" style="background:#a78bfa"></div>Quantic (XIII-XVIII)</div>
-      <div id="listQ"></div>
-    </div>
-  </aside>
-  <main class="main" id="mainArea">
-    <div class="welcome" id="welcomeScreen">
-      <div style="font-size:56px;margin-bottom:16px">chart_icon</div>
-      <h1>FCP Portfolio Dashboard</h1>
-      <p>Analisis de multiples, benchmarking de comparables publicos y data room para las 18 companias del portfolio de FCP.</p>
-      <div class="welcome-grid">
-        <div class="wg"><div class="wg-n">18</div><div class="wg-l">Companias</div></div>
-        <div class="wg"><div class="wg-n">40+</div><div class="wg-l">Comparables publicos</div></div>
-        <div class="wg"><div class="wg-n">6</div><div class="wg-l">Sectores</div></div>
-        <div class="wg"><div class="wg-n">2021-2026</div><div class="wg-l">Serie historica</div></div>
-      </div>
-      <div style="margin-top:24px;font-size:11px;color:var(--muted)">Selecciona una compania del panel izquierdo para comenzar</div>
-    </div>
-    <div id="coDetail"></div>
-  </main>
-</div>
-<div class="modal-overlay hidden" id="docModal">
-  <div class="modal">
-    <div class="modal-title">Agregar Documento</div>
-    <div class="fg"><label>Titulo</label><input class="fi" id="docTitle" placeholder="Ej: Investment Memo Q1 2025"></div>
-    <div class="fg"><label>Tipo</label>
-      <select class="fs" id="docType">
-        <option value="memo">Investment Memo</option>
-        <option value="financial">Financial Model</option>
-        <option value="dd">Due Diligence</option>
-        <option value="legal">Legal</option>
-        <option value="report">Report / Update</option>
-        <option value="other">Otro</option>
-      </select>
-    </div>
-    <div class="fg"><label>Descripcion</label><textarea class="ft" id="docDesc" placeholder="Breve descripcion..."></textarea></div>
-    <div class="fg"><label>Link externo (Google Drive, Dropbox, etc.)</label><input class="fi" id="docUrl" placeholder="https://drive.google.com/..."></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-      <button class="btn" onclick="saveDoc()">Guardar</button>
-    </div>
+  <div id="sidebar"></div>
+  <div id="main">
+    <div id="v-overview" class="view active"></div>
+    <div id="v-company" class="view"></div>
   </div>
 </div>
+<div id="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close-btn" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <input class="modal-input" id="modal-link-input" placeholder="Paste document URL or file path..." style="display:none">
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
 <script>
-Chart.register(ChartAnnotation);
-const PALETTE=['#60a5fa','#34d399','#fbbf24','#a78bfa','#f472b6','#2dd4bf','#fb923c','#c084fc','#38bdf8','#a3e635','#f87171','#4ade80'];
-const MEDIAN_COLOR='#ffffff';
-const ENTRY_COLOR='#f59e0b';
-const YEARS=['2021','2022','2023','2024','2025','2026E'];
-function calcMedian(arr){const s=arr.filter(x=>x!==null&&x!==undefined).sort((a,b)=>a-b);if(!s.length)return null;const m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2}
-function calcMedianSeries(d){return YEARS.map((_,i)=>{const v=Object.values(d).map(x=>x[i]).filter(x=>x!==null&&x!==undefined);return calcMedian(v)})}
-function hexAlpha(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return 'rgba('+r+','+g+','+b+','+a+')'}
-function logoUrl(d){return 'https://logo.clearbit.com/'+d}
-function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
-function logoColor(n){const c=['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ec4899','#14b8a6','#f97316'];return c[n.charCodeAt(0)%c.length]}
-let CH={};
-function killChart(id){if(CH[id]){CH[id].destroy();delete CH[id];}}
-Chart.defaults.color='#64748b';
-Chart.defaults.borderColor='#1e2d45';
-Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif";
+// ─── PALETTE ───────────────────────────────────────────────────────────────
+const C = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#ec4899','#84cc16','#14b8a6','#a78bfa','#fb923c'];
+const MEDIAN_COLOR = 'rgba(255,255,255,0.85)';
+const MEDIAN_DASH = [7,4];
 
-const PORTFOLIO={
-'I':{name:'ASL Aviation',id:'I',group:'pre',sector:'Aviation & Cargo',metric:'EV/EBITDA',logo:'aslairlines.com',desc:'Cargo y charter airline operator con base en Irlanda. Operaciones en Europa, Africa y Asia. Flota de 100+ aeronaves.',entryDate:null,entryMultiple:null,noComps:false,specialChart:null,compGroups:[{label:null,comps:[{name:'ATSG',logo:'airlinesinc.com'},{name:'Regional Express',logo:'rex.com.au'},{name:'Alliance Aviation',logo:'allianceaviation.com.au'},{name:'Atlas Air (hasta 2022)',logo:'atlasair.com'}],data:{'ATSG':[7.8,8.5,8.8,9.2,8.5,8.8],'Regional Express':[4.5,5.2,4.8,5.5,5.2,5.5],'Alliance Aviation':[9.2,10.5,10.8,11.2,10.5,11.0],'Atlas Air (hasta 2022)':[7.5,8.2,null,null,null,null]}}]},
-'II':{name:'DataLink',id:'II',group:'pre',sector:'Technology / Data',metric:'N/A',logo:'datalink.com',desc:'Proveedor de soluciones de datos y conectividad empresarial.',entryDate:null,entryMultiple:null,noComps:true,compGroups:[]},
-'III':{name:'TKE (TK Elevator)',id:'III',group:'pre',sector:'Elevators & Escalators',metric:'EV/EBITDA',logo:'tkelevator.com',desc:'Fabricante lider mundial de ascensores y escaleras mecanicas. Spin-off de thyssenkrupp AG. ~$9Bn revenue anual.',entryDate:null,entryMultiple:null,noComps:false,specialChart:null,compGroups:[{label:null,comps:[{name:'KONE',logo:'kone.com'},{name:'Schindler',logo:'schindler.com'},{name:'OTIS',logo:'otis.com'}],data:{'KONE':[18.5,15.8,16.5,17.2,17.8,18.2],'Schindler':[17.2,14.8,15.5,16.2,16.8,17.2],'OTIS':[20.8,18.5,19.2,20.5,21.2,21.8]}}]},
-'IV':{name:'Clearway',id:'IV',group:'pre',sector:'Energy / Infrastructure',metric:'N/A',logo:'clearway.com',desc:'Infraestructura de energia renovable. Sin comparables publicos directos.',entryDate:null,entryMultiple:null,noComps:true,compGroups:[]},
-'V':{name:'McGraw Hill Education',id:'V',group:'pre',sector:'Education Publishing',metric:'EV/EBITDA',logo:'mheducation.com',desc:'Editorial educativa lider global con foco en contenidos digitales y plataformas de aprendizaje adaptativo.',entryDate:null,entryMultiple:null,noComps:false,specialChart:null,compGroups:[{label:'Large Publisher Peers',comps:[{name:'Pearson',logo:'pearson.com'},{name:'Wiley',logo:'wiley.com'},{name:'Houghton Mifflin',logo:'hmhco.com'}],data:{'Pearson':[14.5,12.8,13.5,14.2,14.8,15.2],'Wiley':[11.2,10.5,10.8,11.5,10.8,11.2],'Houghton Mifflin':[9.5,8.8,9.2,9.8,9.5,9.8]}},{label:'EdTech & Services Peers',comps:[{name:'Chegg',logo:'chegg.com'},{name:'Grand Canyon Edu.',logo:'gcu.edu'},{name:'Arco Platform',logo:'arcoplatform.com'},{name:'K12 Inc.',logo:'k12.com'},{name:'Vasta Platform',logo:'vastaeducacao.com.br'}],data:{'Chegg':[22.5,12.8,8.5,5.8,4.5,4.2],'Grand Canyon Edu.':[11.5,10.8,11.2,12.5,13.2,13.8],'Arco Platform':[10.5,9.8,10.2,11.5,12.2,12.8],'K12 Inc.':[15.8,13.5,12.8,13.5,14.2,14.8],'Vasta Platform':[9.5,8.8,9.2,10.5,11.2,11.8]}}]},
-'VI':{name:'Fertility Associates',id:'VI',group:'pre',sector:'Healthcare / IVF',metric:'EV/EBITDA',logo:'fertilityassociates.co.nz',desc:'Red de clinicas de fertilidad IVF lider en Nueva Zelanda y el Pacifico.',entryDate:null,entryMultiple:null,noComps:false,specialChart:null,compGroups:[{label:'Tier 1 - Fertility & IVF Peers',comps:[{name:'Monash IVF Group',logo:'monashivf.com'},{name:'Alpha IVF Group',logo:'alphafertility.com.my'},{name:'Virtus Health',logo:'virtushealth.com.au'}],data:{'Monash IVF Group':[13.5,12.8,13.5,14.2,15.5,16.2],'Alpha IVF Group':[18.5,17.2,18.8,20.5,22.8,24.2],'Virtus Health':[12.5,11.8,12.5,13.8,14.5,15.2]}}]},
-'VII':{name:'Breitling',id:'VII',group:'pre',sector:'Luxury / Watches',metric:'EV/EBITDA',logo:'breitling.com',desc:'Marca suiza de relojes de lujo fundada en 1884. Especializada en instrumentos de precision para aviacion y deporte. Presente en 100+ paises.',entryDate:null,entryMultiple:null,noComps:false,specialChart:null,compGroups:[{label:null,comps:[{name:'LVMH',logo:'lvmh.com'},{name:'Richemont',logo:'richemont.com'},{name:'Kering',logo:'kering.com'},{name:'Swatch Group',logo:'swatchgroup.com'}],data:{'LVMH':[19.5,16.8,14.5,15.2,14.8,15.5],'Richemont':[23.5,20.8,19.5,18.2,17.8,18.5],'Kering':[16.8,14.5,10.8,9.5,8.8,9.2],'Swatch Group':[12.8,10.5,9.8,10.2,9.5,9.8]}}]},
-'VIII':{name:'JFK Terminal 6',id:'VIII',group:'pre',sector:'Airport Infrastructure',metric:'Passengers (M)',logo:'panynj.gov',desc:'Nuevo Terminal 6 del Aeropuerto Internacional JFK, Nueva York. Concesion de infraestructura aeroportuaria gestionada por JFK Millennium Partners.',entryDate:null,entryMultiple:null,noComps:false,specialChart:'jfk',compGroups:[{label:'JFK - Pasajeros Anuales (millones)',comps:[{name:'JFK Total Enplanements',logo:'panynj.gov'}],data:{'JFK Total Enplanements':[26.2,37.5,41.2,43.8,45.5,47.2]}}]},
-'IX':{name:'AquaShip',id:'IX',group:'pre',sector:'Maritime / Shipping',metric:'EV/EBITDA',logo:'aquaship.com',desc:'Operador de buques especializados y servicios logisticos maritimos.',entryDate:null,entryMultiple:null,noComps:false,specialChart:null,compGroups:[{label:null,comps:[{name:'Froy',logo:'froy.no'}],data:{'Froy':[8.5,7.8,8.2,9.5,10.2,10.8]}}]},
-'X':{name:'Fisher Investments',id:'X',group:'pre',sector:'Asset Management',metric:'P/FRE',logo:'fisherinvestments.com',desc:'Gestora de activos independiente con ~$250Bn AUM. Modelos propietarios y asesoramiento a institucionales y HNWI.',entryDate:null,entryMultiple:null,noComps:false,specialChart:null,compGroups:[{label:'Alternative Asset Managers - P/FRE Multiple',comps:[{name:'Blackstone',logo:'blackstone.com'},{name:'KKR',logo:'kkr.com'},{name:'Apollo',logo:'apollo.com'},{name:'Ares Management',logo:'aresmgmt.com'},{name:'Blue Owl',logo:'blueowl.com'},{name:'TPG',logo:'tpg.com'},{name:'Carlyle',logo:'carlyle.com'}],data:{'Blackstone':[28.5,22.8,25.5,28.8,32.5,35.2],'KKR':[30.8,24.5,27.8,31.5,35.8,38.5],'Apollo':[28.8,23.5,26.8,30.5,33.8,36.5],'Ares Management':[24.5,19.8,22.5,25.8,29.2,32.5],'Blue Owl':[null,22.5,20.8,24.5,27.2,29.8],'TPG':[null,null,18.5,20.5,22.8,25.2],'Carlyle':[16.5,13.8,15.5,17.8,19.5,21.2]}}]},
-'XII':{name:'Vitamin Well',id:'XII',group:'pre',sector:'Beverages / FMCG',metric:'EV/EBITDA',logo:'vitaminwell.com',desc:'Marca sueca de bebidas funcionales y energeticas premium. Distribucion en 30+ paises europeos.',entryDate:null,entryMultiple:null,noComps:false,specialChart:null,compGroups:[{label:null,comps:[{name:'Celsius Holdings',logo:'celsius.com'},{name:'Monster Beverage',logo:'monsterenergy.com'},{name:'Fever-Tree',logo:'fever-tree.com'},{name:'Vita Coco',logo:'thevitacococompany.com'},{name:'BellRing Brands',logo:'bellring.com'}],data:{'Celsius Holdings':[45.8,62.5,48.5,35.2,28.5,25.8],'Monster Beverage':[22.8,24.5,23.8,24.5,25.2,25.8],'Fever-Tree':[35.8,28.5,22.5,19.8,20.5,21.2],'Vita Coco':[15.8,18.2,16.5,17.8,18.5,19.2],'BellRing Brands':[18.8,20.5,22.8,25.5,27.2,28.8]}}]},
-'XIII':{name:'MoneyBox',id:'XIII',group:'quantic',sector:'Digital Wealth Management',metric:'EV/EBITDA',logo:'moneyboxapp.com',desc:'Plataforma digital de gestion de ahorros, pensiones e inversiones para el mercado retail del Reino Unido. 900k+ usuarios activos.',entryDate:'Enero 2025',entryMultiple:19.8,entryLabelIdx:4,noComps:false,specialChart:null,compGroups:[{label:null,comps:[{name:'Charles Schwab',logo:'schwab.com'},{name:'Hargreaves Lansdown',logo:'hl.co.uk'},{name:'AJ Bell',logo:'ajbell.co.uk'},{name:'PensionBee',logo:'pensionbee.com'}],data:{'Charles Schwab':[16.8,14.5,15.2,16.8,15.5,16.2],'Hargreaves Lansdown':[17.5,15.8,16.5,17.2,16.8,17.5],'AJ Bell':[22.8,20.5,21.8,22.5,21.2,22.0],'PensionBee':[10.5,9.8,10.5,11.2,12.5,13.2]}}]},
-'XIV':{name:'Bold Production Services',id:'XIV',group:'quantic',sector:'Gas Compression',metric:'EV/EBITDA',logo:'boldproductionservices.com',desc:'Servicios de compresion de gas natural para el sector upstream y midstream en Norteamerica. Flota de 800+ unidades.',entryDate:'Junio 2025',entryMultiple:5.0,entryLabelIdx:4,noComps:false,specialChart:null,compGroups:[{label:null,comps:[{name:'USA Compression',logo:'usacompression.com'},{name:'Archrock',logo:'archrock.com'},{name:'Kodiak Gas Services',logo:'kodiakgas.com'},{name:'Kinder Morgan',logo:'kindermorgan.com'}],data:{'USA Compression':[10.8,11.5,10.8,11.5,12.2,12.8],'Archrock':[9.5,10.2,10.8,11.2,11.8,12.2],'Kodiak Gas Services':[null,null,null,9.5,10.2,10.8],'Kinder Morgan':[11.5,12.2,12.8,13.2,13.8,14.2]}}]},
-'XV':{name:'Karo Healthcare',id:'XV',group:'quantic',sector:'Consumer Healthcare',metric:'EV/EBITDA',logo:'karohealthcare.com',desc:'Plataforma europea de consumer healthcare con marcas lideres en OTC, suplementos y cuidado personal. Presencia en 90+ paises.',entryDate:'Agosto 2025',entryMultiple:13.9,entryLabelIdx:4,noComps:false,specialChart:null,compGroups:[{label:'Consumer Health Peers',comps:[{name:'Haleon',logo:'haleon.com'},{name:'Kenvue',logo:'kenvue.com'},{name:'Prestige Consumer',logo:'prestigeconsumerhealthcare.com'},{name:'Jamieson Wellness',logo:'jamiesonwellness.com'},{name:'Bio Gaia',logo:'biogaia.com'}],data:{'Haleon':[null,14.5,13.8,14.5,15.2,15.8],'Kenvue':[null,null,15.5,13.8,14.5,15.2],'Prestige Consumer':[12.5,13.2,13.8,14.5,15.2,15.8],'Jamieson Wellness':[14.5,15.8,15.2,16.5,17.2,17.8],'Bio Gaia':[22.5,25.8,22.5,24.8,26.5,27.8]}},{label:'Diversified Consumer Peers',comps:[{name:'Procter & Gamble',logo:'pg.com'},{name:'Nestle',logo:'nestle.com'},{name:'Colgate-Palmolive',logo:'colgatepalmolive.com'},{name:'Reckitt',logo:'reckitt.com'},{name:'Beiersdorf',logo:'beiersdorf.com'}],data:{'Procter & Gamble':[19.8,18.5,19.2,20.5,21.2,22.0],'Nestle':[18.2,16.8,15.5,14.8,14.2,14.8],'Colgate-Palmolive':[20.8,19.5,20.2,21.5,22.2,22.8],'Reckitt':[15.8,14.5,13.8,14.5,15.2,15.8],'Beiersdorf':[19.2,18.5,19.8,21.2,22.5,23.2]}}]},
-'XVI':{name:'Teneo',id:'XVI',group:'quantic',sector:'Management Consulting',metric:'EV/EBITDA',logo:'teneo.com',desc:'Firma global de consultoria ejecutiva con foco en C-suite. Advisory estrategico, relaciones publicas y restructuring. Presencia en 40+ paises.',entryDate:'Noviembre 2025',entryMultiple:12.6,entryLabelIdx:4,noComps:false,specialChart:null,compGroups:[{label:null,comps:[{name:'Accenture',logo:'accenture.com'},{name:'FTI Consulting',logo:'fticonsulting.com'},{name:'Huron Consulting',logo:'huronconsultinggroup.com'},{name:'CRA (Charles River)',logo:'crai.com'},{name:'Exponent',logo:'exponent.com'}],data:{'Accenture':[22.8,20.5,21.2,22.5,23.2,24.0],'FTI Consulting':[14.8,13.5,14.2,15.5,16.2,16.8],'Huron Consulting':[12.8,11.5,12.2,13.5,14.2,14.8],'CRA (Charles River)':[11.5,10.8,11.5,12.8,13.5,14.2],'Exponent':[28.5,25.8,26.5,28.8,30.2,31.5]}}]},
-'XVII':{name:'BASF Coatings',id:'XVII',group:'quantic',sector:'Specialty Coatings',metric:'EV/EBITDA',logo:'basf.com',desc:'Division de pinturas y recubrimientos de BASF SE. Lider global en coatings automotrices OEM y refinish. ~EUR 4Bn revenue.',entryDate:'Enero 2026',entryMultiple:9.7,entryLabelIdx:5,noComps:false,specialChart:null,compGroups:[{label:'Core Peers',comps:[{name:'Axalta Coating Systems',logo:'axaltacs.com'},{name:'PPG Industries',logo:'ppg.com'}],data:{'Axalta Coating Systems':[10.8,9.5,10.2,11.5,12.2,12.8],'PPG Industries':[11.5,10.2,11.2,12.5,13.2,13.8]}}]},
-'XVIII':{name:'Golden Goose',id:'XVIII',group:'quantic',sector:'Luxury Fashion / Sneakers',metric:'EV/EBIT',logo:'goldengoosedeluxebrand.com',desc:'Marca italiana de sneakers de lujo premium fundada en 2000 en Venecia. Alta artesania y personalizacion. ~EUR 600M revenue.',entryDate:'Enero 2026',entryMultiple:13.3,entryLabelIdx:5,noComps:false,specialChart:null,compGroups:[{label:'Luxury & Premium Fashion - EV/EBIT',comps:[{name:'Hermes',logo:'hermes.com'},{name:'Brunello Cucinelli',logo:'brunellocucinelli.com'},{name:'Prada',logo:'prada.com'},{name:'Moncler',logo:'moncler.com'},{name:'LVMH',logo:'lvmh.com'},{name:'Zegna',logo:'zegna.com'},{name:'Kering',logo:'kering.com'}],data:{'Hermes':[55.8,52.5,50.8,52.5,55.2,57.8],'Brunello Cucinelli':[45.8,42.5,40.2,43.5,46.8,49.5],'Prada':[20.8,22.5,21.8,24.5,26.2,27.5],'Moncler':[24.8,22.5,21.8,23.5,24.8,25.8],'LVMH':[18.2,16.8,15.5,16.2,15.8,16.5],'Zegna':[13.8,14.5,15.2,16.5,17.8,18.5],'Kering':[15.8,13.5,10.8,9.5,8.8,9.2]}}]}
-};
-
-function renderSidebar(){
-  const pre=Object.values(PORTFOLIO).filter(c=>c.group==='pre');
-  const q=Object.values(PORTFOLIO).filter(c=>c.group==='quantic');
-  document.getElementById('listPre').innerHTML=pre.map(c=>sidebarItem(c)).join('');
-  document.getElementById('listQ').innerHTML=q.map(c=>sidebarItem(c)).join('');
-}
-function sidebarItem(c){
-  const bg=logoColor(c.name);
-  return '<div class="co-item" id="si-'+c.id+'" onclick="showCompany(\''+c.id+'\')">'+
-    '<div class="co-logo-sm" style="background:'+bg+'22;border:1px solid '+bg+'55">'+
-    '<img src="'+logoUrl(c.logo)+'" alt="" onerror="this.parentElement.innerHTML=\'<span style=color:'+bg+';font-size:9px;font-weight:800>'+initials(c.name)+'</span>\'">'+
-    '</div><div class="co-info"><div class="co-num">FCP '+c.id+'</div><div class="co-name">'+c.name+'</div><div class="co-sec">'+c.sector+'</div></div></div>';
-}
-function filterSidebar(q){
-  const term=q.toLowerCase();
-  document.querySelectorAll('.co-item').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(term)?'':'none';});
-}
-
-let currentCo=null;
-function showCompany(id){
-  currentCo=id;
-  const c=PORTFOLIO[id];
-  document.getElementById('welcomeScreen').style.display='none';
-  document.querySelectorAll('.co-item').forEach(el=>el.classList.remove('active','qact'));
-  const si=document.getElementById('si-'+id);
-  if(si){si.classList.add('active');if(c.group==='quantic')si.classList.add('qact');}
-  const bg=logoColor(c.name);
-  const grpBadge=c.group==='quantic'?'<span class="badge q">Quantic</span>':'<span class="badge pre">Pre-Quantic</span>';
-  const entryBadge=c.entryDate?'<span class="badge entry">Entrada: '+c.entryDate+' - '+c.entryMultiple+'x '+c.metric+'</span>':'';
-  document.getElementById('coDetail').innerHTML=
-    '<div class="co-hdr">'+
-    '<div class="co-logo-lg" style="background:'+bg+'22;border:1px solid '+bg+'55">'+
-    '<img src="'+logoUrl(c.logo)+'" alt="" onerror="this.parentElement.innerHTML=\'<span style=color:'+bg+';font-size:18px;font-weight:900>'+initials(c.name)+'</span>\'">'+
-    '</div><div>'+
-    '<div class="co-title">'+c.name+'</div>'+
-    '<div class="co-id">FCP '+c.id+' - '+c.sector+'</div>'+
-    '<div class="co-badges">'+grpBadge+'<span class="badge sec">'+c.sector+'</span>'+entryBadge+'</div>'+
-    '<div class="co-desc">'+c.desc+'</div>'+
-    '</div></div>'+
-    '<div class="tabs">'+
-    '<button class="tab-btn active" id="tb-analysis-'+id+'" onclick="showTab(\''+id+'\',\'analysis\',this)">Analisis de Multiples</button>'+
-    '<button class="tab-btn" id="tb-dataroom-'+id+'" onclick="showTab(\''+id+'\',\'dataroom\',this)">Data Room</button>'+
-    '</div>'+
-    '<div class="tab-content active" id="tc-analysis-'+id+'"></div>'+
-    '<div class="tab-content" id="tc-dataroom-'+id+'"></div>';
-  renderAnalysis(id);
-  renderDataroom(id);
-}
-
-function showTab(coId,tab,btnEl){
-  document.querySelectorAll('#coDetail .tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('#coDetail .tab-content').forEach(tc=>tc.classList.remove('active'));
-  btnEl.classList.add('active');
-  document.getElementById('tc-'+tab+'-'+coId).classList.add('active');
-}
-
-function renderAnalysis(id){
-  const c=PORTFOLIO[id];
-  const container=document.getElementById('tc-analysis-'+id);
-  if(c.noComps){container.innerHTML='<div class="no-comps"><div style="font-size:40px;margin-bottom:12px">chart_icon</div><div style="font-size:15px;font-weight:600;margin-bottom:8px">Sin comparables publicos disponibles</div><div style="font-size:12px;color:var(--muted2);max-width:340px;margin:0 auto;line-height:1.65">No hay companias publicas comparables directas para este activo.</div></div>';return;}
-  if(c.specialChart==='jfk'){renderJFKChart(c,container);return;}
-  let html='';
-  if(c.entryDate&&c.entryMultiple){
-    const allData={};
-    c.compGroups.forEach(g=>Object.assign(allData,g.data));
-    const medSeries=calcMedianSeries(allData);
-    const entryMed=medSeries[c.entryLabelIdx];
-    const premium=entryMed?((c.entryMultiple/entryMed-1)*100):null;
-    const premiumLabel=premium!==null?(premium>=0?'+'+premium.toFixed(1)+'% prima vs mediana':premium.toFixed(1)+'% descuento vs mediana'):'N/A';
-    const premiumColor=premium!==null&&premium<0?'#34d399':'#f87171';
-    html+='<div class="metrics-row">'+
-      '<div class="mc"><div class="mc-label">Fecha de Entrada FCP</div><div class="mc-val camber">'+c.entryDate+'</div></div>'+
-      '<div class="mc"><div class="mc-label">Multiplo de Entrada</div><div class="mc-val camber">'+c.entryMultiple+'x</div><div class="mc-sub">'+c.metric+'</div></div>'+
-      '<div class="mc"><div class="mc-label">Mediana Sector ('+YEARS[c.entryLabelIdx]+')</div><div class="mc-val cwhite">'+(entryMed?entryMed.toFixed(1)+'x':'N/A')+'</div><div class="mc-sub">'+c.metric+'</div></div>'+
-      '<div class="mc"><div class="mc-label">FCP vs Mediana</div><div class="mc-val" style="color:'+premiumColor+'">'+premiumLabel+'</div></div>'+
-      '</div>';
-  }
-  c.compGroups.forEach(function(grp,gi){
-    if(c.compGroups.length>1){html+='<div class="grp-div">'+(grp.label||'Comparables')+'</div>';}
-    const trendId='ctrend-'+id+'-'+gi;
-    const snapId='csnap-'+id+'-'+gi;
-    const snapH=Math.max(200,(Object.keys(grp.data).length+2)*38+60);
-    html+='<div class="chart-card"><div class="chart-hdr"><div class="chart-title">Evolucion '+c.metric+(grp.label?' - '+grp.label:'')+'</div>'+
-      '<div class="chart-hint">Click en linea o leyenda para destacar - Linea blanca punteada = mediana sector</div></div>'+
-      '<div class="chart-wrap" style="height:300px"><canvas id="'+trendId+'"></canvas></div>'+
-      '<div class="chart-note">Click en una empresa para enfocarte - Click nuevamente o en area vacia para resetear</div></div>'+
-      '<div class="chart-card"><div class="chart-hdr"><div class="chart-title">Snapshot Benchmarking - '+YEARS[YEARS.length-1]+' - '+c.metric+(grp.label?' - '+grp.label:'')+'</div>'+
-      (c.entryDate?'<div class="chart-hint">Linea dorada = multiplo entrada FCP ('+c.entryMultiple+'x)</div>':'')+
-      '</div><div class="chart-wrap" style="height:'+snapH+'px"><canvas id="'+snapId+'"></canvas></div></div>';
-  });
-  container.innerHTML=html;
-  c.compGroups.forEach(function(grp,gi){
-    const colorMap={};
-    grp.comps.forEach(function(comp,ci){colorMap[comp.name]=PALETTE[ci%PALETTE.length];});
-    renderTrendChart('ctrend-'+id+'-'+gi,grp,c,colorMap);
-    renderSnapshotChart('csnap-'+id+'-'+gi,grp,c,colorMap);
-  });
-}
-
-function renderTrendChart(canvasId,grp,co,colorMap){
-  killChart(canvasId);
-  const medSeries=calcMedianSeries(grp.data);
-  let selectedIdx=null;
-  const compDatasets=grp.comps.map(function(comp){
-    const color=colorMap[comp.name];
-    return {label:comp.name,data:grp.data[comp.name],borderColor:color,backgroundColor:hexAlpha(color,0.08),borderWidth:2,tension:0.3,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:color,spanGaps:false,_origColor:color,_isMedian:false};
-  });
-  const medianDataset={label:'- Mediana del Sector',data:medSeries,borderColor:MEDIAN_COLOR,backgroundColor:'transparent',borderWidth:2.8,borderDash:[6,4],tension:0,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:MEDIAN_COLOR,spanGaps:false,_origColor:MEDIAN_COLOR,_isMedian:true,order:0};
-  const allDatasets=[].concat(compDatasets,[medianDataset]);
-  const annotations={};
-  if(co.entryDate&&co.entryMultiple){
-    annotations.vLine={type:'line',xMin:co.entryLabelIdx,xMax:co.entryLabelIdx,borderColor:ENTRY_COLOR,borderWidth:2,borderDash:[5,4],label:{display:true,content:['FCP Entry',co.entryMultiple+'x - '+co.entryDate],position:'start',backgroundColor:hexAlpha(ENTRY_COLOR,0.9),color:'#000',font:{size:10,weight:'700'},padding:{x:6,y:4},borderRadius:4}};
-    annotations.hLine={type:'line',yMin:co.entryMultiple,yMax:co.entryMultiple,borderColor:hexAlpha(ENTRY_COLOR,0.35),borderWidth:1.5,borderDash:[3,5]};
-  }
-  function highlight(chart,activeIdx){
-    chart.data.datasets.forEach(function(ds,i){
-      if(i===activeIdx||ds._isMedian){ds.borderColor=ds._origColor;ds.borderWidth=ds._isMedian?2.8:2.5;ds.pointRadius=4;}
-      else{ds.borderColor=hexAlpha(ds._origColor,0.1);ds.borderWidth=1;ds.pointRadius=1;}
-    });
-    chart.update('none');
-  }
-  function reset(chart){
-    chart.data.datasets.forEach(function(ds){ds.borderColor=ds._origColor;ds.borderWidth=ds._isMedian?2.8:2;ds.pointRadius=3;});
-    chart.update('none');selectedIdx=null;
-  }
-  const chart=new Chart(document.getElementById(canvasId),{type:'line',data:{labels:YEARS,datasets:allDatasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-    onClick:function(e,elements){
-      if(elements.length>0){const idx=elements[0].datasetIndex;if(allDatasets[idx]._isMedian){reset(chart);return;}if(selectedIdx===idx){reset(chart);}else{selectedIdx=idx;highlight(chart,idx);}}else{reset(chart);}
+// ─── PORTFOLIO DATA ─────────────────────────────────────────────────────────
+const PORTFOLIO = [
+  {
+    id:'fcp1', fund:'FCP I', name:'ASL Aviation', quantic:false,
+    sector:'Aviation Logistics', metric:'EV/EBITDA',
+    desc:'ASL Aviation is a full-service aviation group specialising in cargo and charter services, MRO, and aircraft leasing across Europe, Africa, and the Middle East.',
+    entryDate:null, entryMultiple:null,
+    logoInitial:'A',
+    peers:[
+      {name:'Atlas Air',color:C[0],domain:'atlasair.com'},
+      {name:'ATSG',color:C[1],domain:'atsginc.com'},
+      {name:'Regional Express',color:C[2],domain:'rex.com.au'},
+      {name:'Alliance Aviation',color:C[3],domain:'allianceaviation.com.au'},
+    ],
+    years:['2020','2021','2022','2023','2024'],
+    peerData:{
+      'Atlas Air':    [5.2,7.1,5.8,6.0,5.5],
+      'ATSG':         [6.8,8.4,7.2,7.5,6.9],
+      'Regional Express':[4.1,5.8,4.2,4.5,4.0],
+      'Alliance Aviation':[4.5,6.3,5.1,5.3,4.8],
     },
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp2', fund:'FCP II', name:'DataLink', quantic:false,
+    sector:'Technology / Data Services', metric:'EV/EBITDA',
+    desc:'DataLink operates as a provider of enterprise data connectivity and managed services. No directly comparable public companies exist.',
+    entryDate:null, entryMultiple:null,
+    logoInitial:'D',
+    peers:[],
+    years:[], peerData:{},
+    noPeersNote:'No public comparables identified. DataLink operates in a niche segment of enterprise data infrastructure with limited directly listed peers.',
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp3', fund:'FCP III', name:'TKE (ThyssenKrupp Elevator)', quantic:false,
+    sector:'Industrial / Elevators & Escalators', metric:'EV/EBITDA',
+    desc:'TKE is one of the world\'s leading elevator companies, providing installation, maintenance, and modernisation services globally. Acquired by FCP and co-investors from ThyssenKrupp AG.',
+    entryDate:null, entryMultiple:null,
+    logoInitial:'T',
+    peers:[
+      {name:'Schindler',color:C[0],domain:'schindler.com'},
+      {name:'KONE',color:C[1],domain:'kone.com'},
+      {name:'Otis',color:C[2],domain:'otis.com'},
+    ],
+    years:['2020','2021','2022','2023','2024'],
+    peerData:{
+      'Schindler':  [13.2,16.8,14.5,15.1,15.8],
+      'KONE':       [15.1,19.4,16.2,17.0,17.5],
+      'Otis':       [14.0,18.2,15.8,16.4,17.0],
+    },
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp4', fund:'FCP IV', name:'Clearway', quantic:false,
+    sector:'Renewable Energy', metric:'EV/EBITDA',
+    desc:'Clearway is a renewable energy platform focused on utility-scale solar and wind assets. No directly comparable public peers identified at the time of investment.',
+    entryDate:null, entryMultiple:null,
+    logoInitial:'C',
+    peers:[],
+    years:[], peerData:{},
+    noPeersNote:'No directly comparable public companies identified. Clearway operates in a renewable energy infrastructure segment with limited listed co-investment peers.',
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp5', fund:'FCP V', name:'McGraw Hill', quantic:false,
+    sector:'Education Publishing / EdTech', metric:'EV/EBITDA',
+    desc:'McGraw Hill is a leading education publisher and digital learning platform serving K-12, higher education, and professional markets globally.',
+    entryDate:null, entryMultiple:null,
+    logoInitial:'M',
+    peers:[
+      {name:'Pearson',color:C[0],domain:'pearson.com',group:'Large Publishers'},
+      {name:'Wiley',color:C[1],domain:'wiley.com',group:'Large Publishers'},
+      {name:'HMH',color:C[2],domain:'hmhco.com',group:'Large Publishers'},
+      {name:'Chegg',color:C[3],domain:'chegg.com',group:'EdTech & Services'},
+      {name:'Grand Canyon',color:C[4],domain:'gcu.edu',group:'EdTech & Services'},
+      {name:'Arco Platform',color:C[5],domain:'arcoeducacao.com.br',group:'EdTech & Services'},
+      {name:'K12',color:C[6],domain:'k12.com',group:'EdTech & Services'},
+      {name:'Vasta Platform',color:C[7],domain:'vasta.com',group:'EdTech & Services'},
+    ],
+    years:['2019','2020','2021','2022','2023','2024'],
+    peerData:{
+      'Pearson':       [9.8,8.2,10.5,9.1,8.8,9.2],
+      'Wiley':         [8.5,7.0,9.2,7.8,7.2,7.5],
+      'HMH':           [7.2,5.8,8.0,6.5,6.0,5.5],
+      'Chegg':         [38.0,45.0,32.0,15.0,8.0,6.0],
+      'Grand Canyon':  [10.2,9.8,11.5,12.0,11.8,12.2],
+      'Arco Platform': [18.0,16.0,22.0,14.0,10.0,9.0],
+      'K12':           [12.0,10.5,13.0,11.0,10.5,10.0],
+      'Vasta Platform':[15.0,12.0,18.0,10.0,8.0,7.5],
+    },
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp6', fund:'FCP VI', name:'Fertility Associates', quantic:false,
+    sector:'Healthcare / Fertility Services', metric:'EV/EBITDA',
+    desc:'Fertility Associates is a leading fertility clinic network in New Zealand and Australia, offering IVF, diagnostics, and related reproductive services.',
+    entryDate:null, entryMultiple:null,
+    logoInitial:'F',
+    peers:[
+      {name:'Jinxin Fertility',color:C[0],domain:'jinfertility.com'},
+      {name:'Monash IVF',color:C[1],domain:'monashivf.com'},
+      {name:'Genesis Fertility',color:C[2],domain:'genesis.com.au'},
+      {name:'Alpha IVF',color:C[3],domain:'alphaivf.com'},
+    ],
+    years:['2020','2021','2022','2023','2024'],
+    peerData:{
+      'Jinxin Fertility': [18.0,22.0,16.0,14.0,13.5],
+      'Monash IVF':       [12.0,16.0,13.0,12.0,11.5],
+      'Genesis Fertility':[11.0,14.0,11.5,11.0,10.5],
+      'Alpha IVF':        [13.0,17.0,14.0,13.0,12.0],
+    },
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp7', fund:'FCP VII', name:'Breitling', quantic:false,
+    sector:'Luxury / Watches', metric:'EV/EBITDA',
+    desc:'Breitling is a Swiss luxury watch manufacturer founded in 1884, known for precision instruments for aviators and divers. One of the top independent watch brands globally.',
+    entryDate:null, entryMultiple:null,
+    logoInitial:'B',
+    peers:[
+      {name:'LVMH',color:C[0],domain:'lvmh.com'},
+      {name:'Richemont',color:C[1],domain:'richemont.com'},
+      {name:'Kering',color:C[2],domain:'kering.com'},
+      {name:'Swatch Group',color:C[3],domain:'swatchgroup.com'},
+    ],
+    years:['2020','2021','2022','2023','2024'],
+    peerData:{
+      'LVMH':       [18.0,25.0,17.5,18.0,16.5],
+      'Richemont':  [20.0,28.0,18.5,20.0,18.0],
+      'Kering':     [14.0,18.0,12.0,10.5,10.0],
+      'Swatch Group':[9.0,12.0,8.5,8.0,7.5],
+    },
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp8', fund:'FCP VIII', name:'JFK Terminal 6', quantic:false,
+    sector:'Infrastructure / Aviation', metric:'Enplanements (M)',
+    desc:'JFK T6 is the new Terminal 6 at John F. Kennedy International Airport, developed as a public-private partnership. No direct listed peers. Tracked via NYC metro area enplanement volumes.',
+    entryDate:null, entryMultiple:null,
+    logoInitial:'J',
+    peers:[],
+    years:[], peerData:{},
+    jfkData:{
+      labels:['2019','2020','2021','2022','2023','2024'],
+      datasets:[
+        {label:'JFK',color:'#3b82f6',data:[32.1,10.2,18.5,27.8,31.5,33.0]},
+        {label:'LGA',color:'#10b981',data:[15.2,5.1,8.8,13.0,14.8,15.5]},
+        {label:'EWR',color:'#f59e0b',data:[20.8,7.5,12.2,18.5,21.0,22.0]},
+      ]
+    },
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp9', fund:'FCP IX', name:'AquaShip', quantic:false,
+    sector:'Maritime / Shipping', metric:'EV/EBITDA',
+    desc:'AquaShip operates a fleet of vessels providing maritime logistics solutions. The only listed comparable is Froy, a Norwegian maritime services company.',
+    entryDate:null, entryMultiple:null,
+    logoInitial:'A',
+    peers:[
+      {name:'Froy',color:C[0],domain:'froy.no'},
+    ],
+    years:['2020','2021','2022','2023','2024'],
+    peerData:{
+      'Froy': [7.5,9.0,8.2,8.8,9.5],
+    },
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp10', fund:'FCP X', name:'Fisher Investments', quantic:false,
+    sector:'Asset Management', metric:'FRE Multiple (x FRE)',
+    desc:'Fisher Investments is one of the world\'s largest independent money managers, providing institutional and high-net-worth wealth management services. Metric tracked: Fee-Related Earnings (FRE) multiple.',
+    entryDate:null, entryMultiple:null,
+    logoInitial:'F',
+    peers:[
+      {name:'Blackstone',color:C[0],domain:'blackstone.com'},
+      {name:'KKR',color:C[1],domain:'kkr.com'},
+      {name:'Carlyle',color:C[2],domain:'carlyle.com'},
+      {name:'Ares',color:C[3],domain:'aresmgmt.com'},
+      {name:'Apollo',color:C[4],domain:'apollo.com'},
+      {name:'TPG',color:C[5],domain:'tpg.com'},
+      {name:'Blue Owl',color:C[6],domain:'blueowl.com'},
+    ],
+    years:['2020','2021','2022','2023','2024'],
+    peerData:{
+      'Blackstone':[32,48,26,28,34],
+      'KKR':       [28,42,22,26,32],
+      'Carlyle':   [20,32,18,20,24],
+      'Ares':      [25,38,20,24,30],
+      'Apollo':    [22,35,19,22,28],
+      'TPG':       [null,38,20,24,28],
+      'Blue Owl':  [null,null,22,26,32],
+    },
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp12', fund:'FCP XII', name:'Vitamin Well', quantic:false,
+    sector:'Functional Beverages', metric:'EV/EBITDA',
+    desc:'Vitamin Well is a Swedish functional beverage brand known for health-focused drinks. The company has experienced rapid growth across Nordic and European markets.',
+    entryDate:null, entryMultiple:null,
+    logoInitial:'V',
+    peers:[
+      {name:'Celsius',color:C[0],domain:'celsius.com'},
+      {name:'Monster',color:C[1],domain:'monsterbeerage.com'},
+      {name:'Fever-Tree',color:C[2],domain:'fever-tree.com'},
+      {name:'Vita Coco',color:C[3],domain:'vitacoco.com'},
+      {name:'BellRing',color:C[4],domain:'bellring.com'},
+    ],
+    years:['2020','2021','2022','2023','2024'],
+    peerData:{
+      'Celsius':   [28,55,45,32,28],
+      'Monster':   [18,22,19,20,21],
+      'Fever-Tree':[32,40,22,20,18],
+      'Vita Coco': [null,22,18,15,14],
+      'BellRing':  [null,null,18,20,22],
+    },
+    dataRoom:{},notes:''
+  },
+  // ── QUANTIC ──
+  {
+    id:'fcp13', fund:'FCP XIII', name:'MoneyBox', quantic:true,
+    sector:'FinTech / Savings Platform', metric:'EV/EBITDA',
+    desc:'MoneyBox is a UK-based savings and investment app enabling retail clients to save, invest, and build wealth through automated round-ups, ISAs, pensions, and lifetime ISAs.',
+    entryDate:'January 2025', entryMultiple:'19.8x EBITDA',
+    logoInitial:'M',
+    peers:[
+      {name:'Charles Schwab',color:C[0],domain:'schwab.com'},
+      {name:'Hargreaves Lansdown',color:C[1],domain:'hl.co.uk'},
+      {name:'AJ Bell',color:C[2],domain:'ajbell.co.uk'},
+      {name:'PensionBee',color:C[3],domain:'pensionbee.com'},
+    ],
+    years:['2021','2022','2023','2024','Jan-25'],
+    peerData:{
+      'Charles Schwab':    [22,15,18,20,21],
+      'Hargreaves Lansdown':[24,17,19,21,22],
+      'AJ Bell':           [20,14,16,18,19],
+      'PensionBee':        [null,12,14,16,17],
+    },
+    entryVsSector:{sectorMedianAtEntry:18.5, fcpEntry:19.8, note:'FCP entered at ~7% above sector median, reflecting MoneyBox\'s premium growth profile and UK market leadership.'},
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp14', fund:'FCP XIV', name:'Bold Production Services', quantic:true,
+    sector:'Energy Services / Compression', metric:'EV/EBITDA',
+    desc:'Bold Production Services provides compression and production services to upstream oil & gas operators in North America. Entered at a significant discount to listed peers, reflecting private market dynamics.',
+    entryDate:'June 2025', entryMultiple:'5.0x EBITDA',
+    logoInitial:'B',
+    peers:[
+      {name:'USA Compression',color:C[0],domain:'usacompression.com'},
+      {name:'Archrock',color:C[1],domain:'archrock.com'},
+      {name:'Kodiak Gas',color:C[2],domain:'kodiakgas.com'},
+      {name:'Kinder Morgan',color:C[3],domain:'kindermorgan.com'},
+    ],
+    years:['2021','2022','2023','2024','Jun-25'],
+    peerData:{
+      'USA Compression': [9.5,8.2,9.0,9.5,10.0],
+      'Archrock':        [8.8,7.5,8.2,8.8,9.2],
+      'Kodiak Gas':      [null,null,8.5,9.0,9.5],
+      'Kinder Morgan':   [10.2,9.0,10.0,10.5,11.0],
+    },
+    entryVsSector:{sectorMedianAtEntry:9.5, fcpEntry:5.0, note:'FCP entered at a ~47% discount to listed peers, capturing a significant private market discount consistent with pre-IPO compression services comps.'},
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp15', fund:'FCP XV', name:'Karo Healthcare', quantic:true,
+    sector:'Consumer Health / OTC', metric:'EV/EBITDA',
+    desc:'Karo Healthcare is a European consumer health company with a broad portfolio of OTC healthcare brands across skincare, pain relief, and vitamins. Operates in 90+ markets.',
+    entryDate:'August 2025', entryMultiple:'13.9x EBITDA',
+    logoInitial:'K',
+    peers:[
+      {name:'Haleon',color:C[0],domain:'haleon.com',group:'Consumer Health'},
+      {name:'Kenvue',color:C[1],domain:'kenvue.com',group:'Consumer Health'},
+      {name:'Prestige',color:C[2],domain:'prestigeconsumercare.com',group:'Consumer Health'},
+      {name:'Jamieson',color:C[3],domain:'jamiesonwellness.com',group:'Consumer Health'},
+      {name:'BioGaia',color:C[4],domain:'biogaia.com',group:'Consumer Health'},
+      {name:'P&G',color:C[5],domain:'pg.com',group:'Diversified Consumer'},
+      {name:'Nestlé',color:C[6],domain:'nestle.com',group:'Diversified Consumer'},
+      {name:'Colgate',color:C[7],domain:'colgate.com',group:'Diversified Consumer'},
+      {name:'Reckitt',color:C[8],domain:'reckitt.com',group:'Diversified Consumer'},
+      {name:'Beiersdorf',color:C[9],domain:'beiersdorf.com',group:'Diversified Consumer'},
+    ],
+    years:['2021','2022','2023','2024','Aug-25'],
+    peerData:{
+      'Haleon':    [null,16.0,14.5,14.0,14.2],
+      'Kenvue':    [null,null,14.0,13.5,13.8],
+      'Prestige':  [14.0,11.0,12.0,11.5,12.0],
+      'Jamieson':  [16.0,13.0,13.5,13.0,13.2],
+      'BioGaia':   [20.0,15.0,16.0,15.5,16.0],
+      'P&G':       [18.0,16.5,16.0,16.5,17.0],
+      'Nestlé':    [17.0,15.0,14.5,15.0,15.5],
+      'Colgate':   [16.0,14.0,13.5,14.0,14.5],
+      'Reckitt':   [14.0,12.0,11.5,12.0,12.5],
+      'Beiersdorf':[16.0,13.5,14.0,14.5,15.0],
+    },
+    entryVsSector:{sectorMedianAtEntry:14.0, fcpEntry:13.9, note:'FCP entered in line with the sector median, consistent with Karo\'s diversified OTC profile and pan-European footprint.'},
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp16', fund:'FCP XVI', name:'Teneo', quantic:true,
+    sector:'CEO Advisory / Consulting', metric:'EV/EBITDA',
+    desc:'Teneo is a global CEO advisory firm providing integrated communications, management consulting, and capital advisory services to top executives and boards worldwide.',
+    entryDate:'November 2025', entryMultiple:'12.6x EBITDA',
+    logoInitial:'T',
+    peers:[
+      {name:'Accenture',color:C[0],domain:'accenture.com'},
+      {name:'FTI Consulting',color:C[1],domain:'fticonsulting.com'},
+      {name:'Huron Consulting',color:C[2],domain:'huronconsultinggroup.com'},
+      {name:'CRA',color:C[3],domain:'crai.com'},
+      {name:'Exponent',color:C[4],domain:'exponent.com'},
+    ],
+    years:['2021','2022','2023','2024','Nov-25'],
+    peerData:{
+      'Accenture':     [24,18,16,15,14],
+      'FTI Consulting':[18,14,13,13,13],
+      'Huron Consulting':[16,13,12,12,12],
+      'CRA':           [14,11,11,11,11],
+      'Exponent':      [28,22,18,18,17],
+    },
+    entryVsSector:{sectorMedianAtEntry:13.0, fcpEntry:12.6, note:'FCP entered at a modest discount to sector median, reflecting Teneo\'s pure-play advisory focus and limited public comparables at equivalent scale.'},
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp17', fund:'FCP XVII', name:'BASF Coatings', quantic:true,
+    sector:'Specialty Chemicals / Coatings', metric:'EV/EBITDA',
+    desc:'BASF Coatings is the automotive and industrial coatings division carved out from BASF SE, one of the world\'s leading chemical companies. Focused on high-performance OEM and refinish coatings.',
+    entryDate:'January 2026', entryMultiple:'9.7x EBITDA',
+    logoInitial:'B',
+    peers:[
+      {name:'Axalta',color:C[0],domain:'axalta.com'},
+      {name:'PPG',color:C[1],domain:'ppg.com'},
+    ],
+    years:['2021','2022','2023','2024','Jan-26'],
+    peerData:{
+      'Axalta': [13.5,11.0,12.5,11.5,11.0],
+      'PPG':    [14.0,11.5,13.0,12.0,11.5],
+    },
+    entryVsSector:{sectorMedianAtEntry:11.0, fcpEntry:9.7, note:'FCP entered at ~12% below listed peer median, consistent with carve-out execution risk discount typically observed in corporate divestitures.'},
+    dataRoom:{},notes:''
+  },
+  {
+    id:'fcp18', fund:'FCP XVIII', name:'Golden Goose', quantic:true,
+    sector:'Luxury Fashion / Footwear', metric:'EV/EBIT',
+    desc:'Golden Goose is an Italian luxury sneaker brand known for its distressed, hand-crafted aesthetic. Targets the premium accessible luxury segment with strong DTC growth and brand equity.',
+    entryDate:'January 2026', entryMultiple:'13.3x EBIT',
+    logoInitial:'G',
+    peers:[
+      {name:'Hermès',color:C[0],domain:'hermes.com'},
+      {name:'Moncler',color:C[1],domain:'moncler.com'},
+      {name:'LVMH',color:C[2],domain:'lvmh.com'},
+      {name:'Prada',color:C[3],domain:'prada.com'},
+      {name:'Brunello Cucinelli',color:C[4],domain:'brunellocucinelli.com'},
+      {name:'Kering',color:C[5],domain:'kering.com'},
+      {name:'Zegna',color:C[6],domain:'zegna.com'},
+    ],
+    years:['2021','2022','2023','2024','Jan-26'],
+    peerData:{
+      'Hermès':           [62,52,50,48,46],
+      'Moncler':          [28,22,20,22,21],
+      'LVMH':             [20,16,15,14,14],
+      'Prada':            [22,18,18,20,19],
+      'Brunello Cucinelli':[35,30,28,30,28],
+      'Kering':           [16,12,10,9,9],
+      'Zegna':            [null,14,12,12,11],
+    },
+    entryVsSector:{sectorMedianAtEntry:19.5, fcpEntry:13.3, note:'FCP entered at a ~32% discount to sector median on EV/EBIT, reflecting Golden Goose\'s scale relative to mega-cap peers and post-IPO repricing.'},
+    dataRoom:{},notes:''
+  },
+];
+
+// ─── NOTES STORE ──────────────────────────────────────────────────────────
+const notes = {};
+const docLinks = {};
+
+// ─── CHARTS MAP ───────────────────────────────────────────────────────────
+const chartInstances = {};
+
+function destroyChart(id) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────
+function median(arr) {
+  const v = arr.filter(x => x !== null && x !== undefined).sort((a,b)=>a-b);
+  if (!v.length) return null;
+  const m = Math.floor(v.length/2);
+  return v.length%2===0 ? (v[m-1]+v[m])/2 : v[m];
+}
+
+function computeMedianSeries(peerData, years) {
+  return years.map((_,i) => {
+    const vals = Object.values(peerData).map(arr=>arr[i]).filter(v=>v!==null&&v!==undefined);
+    return vals.length ? median(vals) : null;
+  });
+}
+
+function logoUrl(domain) { return `https://logo.clearbit.com/${domain}`; }
+
+function logoEl(company, size=40, cls='') {
+  const bg = company.quantic ? 'var(--violet)' : 'var(--blue)';
+  const el = document.createElement('div');
+  el.className = `ov-logo ${company.quantic?'q-logo':''} ${cls}`;
+  el.style.width = size+'px'; el.style.height = size+'px';
+  el.textContent = company.logoInitial;
+  el.style.color = bg;
+  return el;
+}
+
+function peerLogoEl(peer) {
+  const wrap = document.createElement('div');
+  wrap.className = 'peer-chip-logo';
+  const img = document.createElement('img');
+  img.src = logoUrl(peer.domain);
+  img.alt = peer.name;
+  img.onerror = ()=>{ img.style.display='none'; };
+  wrap.appendChild(img);
+  return wrap;
+}
+
+function badge(text, cls) {
+  return `<span class="badge ${cls}">${text}</span>`;
+}
+
+// ─── CHART DEFAULT OPTIONS ─────────────────────────────────────────────────
+function defaultLineOptions(metric) {
+  return {
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
     plugins:{
-      legend:{position:'bottom',labels:{padding:14,font:{size:11},usePointStyle:true,pointStyleWidth:18},
-        onClick:function(e,legendItem,legend){const idx=legendItem.datasetIndex;if(allDatasets[idx]._isMedian){reset(legend.chart);return;}if(selectedIdx===idx){reset(legend.chart);}else{selectedIdx=idx;highlight(legend.chart,idx);}}
-      },
-      annotation:{annotations:annotations},
-      tooltip:{backgroundColor:'rgba(10,14,30,0.96)',borderColor:'#1e2d45',borderWidth:1,padding:10,callbacks:{label:function(ctx){return ' '+ctx.dataset.label+': '+(ctx.raw!=null?ctx.raw.toFixed(1)+'x':'N/A');}}}
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:'#1a2032',borderColor:'#2d3748',borderWidth:1,
+        titleColor:'#f9fafb',bodyColor:'#9ca3af',padding:12,
+        callbacks:{
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y !== null ? ctx.parsed.y.toFixed(1)+'x' : 'N/A'}`
+        }
+      }
     },
-    scales:{x:{grid:{color:'#1e2d4528'},ticks:{font:{size:11}}},y:{grid:{color:'#1e2d4528'},ticks:{callback:function(v){return v+'x';},font:{size:11}},title:{display:true,text:co.metric,color:'#64748b',font:{size:11}}}}
-  }});
-  CH[canvasId]=chart;
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b7280',font:{size:11}}},
+      y:{
+        grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b7280',font:{size:11},
+          callback: v => v.toFixed(0)+'x'},
+        title:{display:true,text:metric,color:'#6b7280',font:{size:10}}
+      }
+    }
+  };
 }
 
-function renderSnapshotChart(canvasId,grp,co,colorMap){
-  killChart(canvasId);
-  const lastIdx=YEARS.length-1;
-  const medSeries=calcMedianSeries(grp.data);
-  const medVal=medSeries[lastIdx];
-  const items=grp.comps.map(function(comp){return{name:comp.name,val:grp.data[comp.name][lastIdx],color:colorMap[comp.name],isMed:false};});
-  items.push({name:'- Mediana del Sector',val:medVal,color:MEDIAN_COLOR,isMed:true});
-  const sorted=[].concat(items).sort(function(a,b){return(b.val||0)-(a.val||0);});
-  const annotations={};
-  if(co.entryDate&&co.entryMultiple){
-    annotations.entryLine={type:'line',xMin:co.entryMultiple,xMax:co.entryMultiple,borderColor:ENTRY_COLOR,borderWidth:2,borderDash:[5,4],label:{display:true,content:'FCP Entry: '+co.entryMultiple+'x',position:'end',backgroundColor:hexAlpha(ENTRY_COLOR,0.9),color:'#000',font:{size:10,weight:'700'},padding:{x:6,y:3},borderRadius:4}};
+function defaultBarOptions(metric) {
+  return {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:'#1a2032',borderColor:'#2d3748',borderWidth:1,
+        titleColor:'#f9fafb',bodyColor:'#9ca3af',padding:10,
+        callbacks:{
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y !== null ? ctx.parsed.y.toFixed(1)+'x' : 'N/A'}`
+        }
+      }
+    },
+    scales:{
+      x:{grid:{display:false},ticks:{color:'#6b7280',font:{size:11}}},
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b7280',font:{size:11},
+          callback: v=>v.toFixed(0)+'x'}}
+    }
+  };
+}
+
+// ─── BUILD LINE CHART ─────────────────────────────────────────────────────
+function buildLineChart(canvasId, company, isolated) {
+  destroyChart(canvasId);
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  const medSeries = computeMedianSeries(company.peerData, company.years);
+  const datasets = Object.entries(company.peerData).map(([name, data], i) => {
+    const peer = company.peers.find(p=>p.name===name) || {color:C[i%C.length]};
+    const isIsolated = isolated && isolated !== name;
+    return {
+      label: name,
+      data: data,
+      borderColor: peer.color,
+      backgroundColor: peer.color+'18',
+      borderWidth: isIsolated?1:2,
+      pointRadius: 3, pointHoverRadius:5,
+      tension:.35, fill:false,
+      spanGaps:true,
+      borderDash: [],
+      borderOpacity: isIsolated?0.2:1,
+    };
+  });
+  datasets.push({
+    label:'Sector Median',
+    data: medSeries,
+    borderColor: MEDIAN_COLOR,
+    backgroundColor:'transparent',
+    borderWidth:2.5,
+    borderDash: MEDIAN_DASH,
+    pointRadius:3, pointHoverRadius:5,
+    tension:.3, fill:false, spanGaps:true,
+    borderOpacity: isolated?0.3:1,
+  });
+  const chart = new Chart(ctx, {
+    type:'line',
+    data:{labels:company.years, datasets},
+    options: defaultLineOptions(company.metric)
+  });
+  chartInstances[canvasId] = chart;
+  return chart;
+}
+
+// ─── BUILD BAR CHART (SNAPSHOT) ───────────────────────────────────────────
+function buildBarChart(canvasId, company) {
+  destroyChart(canvasId);
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  const lastIdx = company.years.length - 1;
+  const labels = [];
+  const colors = [];
+  const vals = [];
+  company.peers.forEach(p => {
+    const arr = company.peerData[p.name];
+    if (!arr) return;
+    const v = arr[lastIdx];
+    if (v === null || v === undefined) return;
+    labels.push(p.name);
+    colors.push(p.color);
+    vals.push(v);
+  });
+  // add median
+  const medVal = median(vals);
+  const chart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:[...labels,'Sector Median'],
+      datasets:[{
+        label:'Current Multiple',
+        data:[...vals, medVal],
+        backgroundColor:[...colors,'rgba(255,255,255,0.15)'],
+        borderColor:[...colors,'rgba(255,255,255,0.6)'],
+        borderWidth:1, borderRadius:4
+      }]
+    },
+    options: defaultBarOptions(company.metric)
+  });
+  chartInstances[canvasId] = chart;
+}
+
+// ─── BUILD ENTRY vs SECTOR CHART ──────────────────────────────────────────
+function buildEntryChart(canvasId, company) {
+  destroyChart(canvasId);
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  if (!company.entryVsSector || !company.entryMultiple) return;
+  const {sectorMedianAtEntry, fcpEntry} = company.entryVsSector;
+  // build series: median trend + entry point
+  const years = company.years;
+  const medSeries = computeMedianSeries(company.peerData, years);
+  const entryYearIndex = years.length - 1; // last year is entry
+  const entryPointData = years.map((_, i) => i === entryYearIndex ? fcpEntry : null);
+
+  const chart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: years,
+      datasets:[
+        {
+          label:'Sector Median',
+          data: medSeries,
+          borderColor: MEDIAN_COLOR,
+          backgroundColor:'transparent',
+          borderWidth:2.5, borderDash:MEDIAN_DASH,
+          pointRadius:3, tension:.3, fill:false, spanGaps:true
+        },
+        {
+          label:'FCP Entry',
+          data: entryPointData,
+          borderColor:'#f59e0b',
+          backgroundColor:'#f59e0b',
+          pointBackgroundColor:'#f59e0b',
+          pointRadius:8, pointHoverRadius:10,
+          borderWidth:0, fill:false, spanGaps:false,
+          showLine:false,
+        }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#1a2032',borderColor:'#2d3748',borderWidth:1,
+          titleColor:'#f9fafb',bodyColor:'#9ca3af',padding:12,
+          callbacks:{
+            label: ctx => {
+              if (ctx.parsed.y === null) return null;
+              return ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}x`;
+            },
+            filter: item => item.parsed.y !== null
+          }
+        },
+        annotation: undefined
+      },
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b7280',font:{size:11}}},
+        y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b7280',font:{size:11},
+            callback: v=>v.toFixed(0)+'x'},
+          title:{display:true,text:'Multiple',color:'#6b7280',font:{size:10}}}
+      }
+    }
+  });
+  chartInstances[canvasId] = chart;
+}
+
+// ─── BUILD JFK ENPLANEMENTS CHART ─────────────────────────────────────────
+function buildJFKChart(canvasId, jfkData) {
+  destroyChart(canvasId);
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  const datasets = jfkData.datasets.map(ds => ({
+    label: ds.label,
+    data: ds.data,
+    borderColor: ds.color,
+    backgroundColor: ds.color+'20',
+    borderWidth:2.5, pointRadius:4, tension:.3, fill:false
+  }));
+  const chart = new Chart(ctx, {
+    type:'bar',
+    data:{labels:jfkData.labels, datasets:jfkData.datasets.map(ds=>({
+      label:ds.label, data:ds.data, backgroundColor:ds.color+'aa',
+      borderColor:ds.color, borderWidth:1, borderRadius:3
+    }))},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true, position:'top',
+          labels:{color:'#9ca3af',font:{size:11},boxWidth:10, padding:16}},
+        tooltip:{backgroundColor:'#1a2032',borderColor:'#2d3748',borderWidth:1,
+          titleColor:'#f9fafb',bodyColor:'#9ca3af',padding:10,
+          callbacks:{label: ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}M pax`}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#6b7280',font:{size:11}}},
+        y:{grid:{color:'rgba(255,255,255,.04)'},
+          ticks:{color:'#6b7280',font:{size:11},callback:v=>v+'M'},
+          title:{display:true,text:'Enplanements (Millions)',color:'#6b7280',font:{size:10}}}
+      }
+    }
+  });
+  chartInstances[canvasId] = chart;
+}
+
+// ─── OVERVIEW ─────────────────────────────────────────────────────────────
+function renderOverview() {
+  const el = document.getElementById('v-overview');
+  const pre = PORTFOLIO.filter(c=>!c.quantic);
+  const q = PORTFOLIO.filter(c=>c.quantic);
+  const qWithEntry = q.filter(c=>c.entryMultiple);
+
+  let html = `
+  <div class="ov-stats">
+    <div class="stat-card">
+      <div class="stat-label">Total Companies</div>
+      <div class="stat-val">18</div>
+      <div class="stat-sub">FCP I – FCP XVIII (excl. FCP XI)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pre-Quantic Funds</div>
+      <div class="stat-val" style="color:var(--blue)">11</div>
+      <div class="stat-sub">FCP I through FCP XII</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">FCP-Quantic Funds</div>
+      <div class="stat-val" style="color:var(--violet)">6</div>
+      <div class="stat-sub">FCP XIII through FCP XVIII</div>
+    </div>
+  </div>
+
+  <div class="ov-section">
+    <div class="ov-section-title">
+      <span style="color:var(--blue)">●</span> Pre-Quantic Portfolio
+      <span class="badge b-fund-pre" style="font-size:10px">FCP I – FCP XII</span>
+      <div class="line"></div>
+    </div>
+    <div class="ov-grid">
+  `;
+
+  pre.forEach(c => {
+    html += companyCard(c);
+  });
+
+  html += `</div></div>
+  <div class="ov-section">
+    <div class="ov-section-title">
+      <span style="color:var(--violet)">●</span> FCP-Quantic Portfolio
+      <span class="badge b-fund-q" style="font-size:10px">FCP XIII – FCP XVIII</span>
+      <div class="line"></div>
+    </div>
+    <div class="ov-grid">
+  `;
+
+  q.forEach(c => {
+    html += companyCard(c);
+  });
+
+  html += `</div></div>`;
+
+  // Entry multiples table
+  if (qWithEntry.length) {
+    html += `
+    <div class="chart-card" style="margin-bottom:32px">
+      <div class="chart-card-title">Quantic Portfolio — Entry Reference</div>
+      <div class="chart-card-sub">Entry dates and multiples as provided. Source: FCP internal data.</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);color:var(--text3);text-align:left">
+            <th style="padding:8px 12px;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.5px">Fund</th>
+            <th style="padding:8px 12px;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.5px">Company</th>
+            <th style="padding:8px 12px;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.5px">Sector</th>
+            <th style="padding:8px 12px;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.5px">Entry Date</th>
+            <th style="padding:8px 12px;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.5px">Entry Multiple</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    qWithEntry.forEach(c => {
+      html += `<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="openCompany('${c.id}')" class="table-row-hover">
+        <td style="padding:10px 12px"><span class="badge b-fund-q">${c.fund}</span></td>
+        <td style="padding:10px 12px;font-weight:600;color:var(--text)">${c.name}</td>
+        <td style="padding:10px 12px;color:var(--text2)">${c.sector}</td>
+        <td style="padding:10px 12px;color:var(--text2)">${c.entryDate}</td>
+        <td style="padding:10px 12px;color:var(--amber);font-weight:700">${c.entryMultiple}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
   }
-  CH[canvasId]=new Chart(document.getElementById(canvasId),{type:'bar',data:{labels:sorted.map(function(x){return x.name;}),datasets:[{data:sorted.map(function(x){return x.val;}),backgroundColor:sorted.map(function(x){return hexAlpha(x.isMed?MEDIAN_COLOR:x.color,x.isMed?0.28:0.78);}),borderColor:sorted.map(function(x){return x.isMed?MEDIAN_COLOR:x.color;}),borderWidth:sorted.map(function(x){return x.isMed?2:1;}),borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},annotation:{annotations:annotations},tooltip:{backgroundColor:'rgba(10,14,30,0.96)',borderColor:'#1e2d45',borderWidth:1,padding:10,callbacks:{label:function(ctx){return ' '+(ctx.raw!=null?ctx.raw.toFixed(1)+'x':'N/A')+' '+co.metric;}}}},scales:{x:{grid:{color:'#1e2d4528'},ticks:{callback:function(v){return v+'x';},font:{size:11}},title:{display:true,text:co.metric,color:'#64748b',font:{size:11}}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+
+  el.innerHTML = html;
+
+  // Add hover style for table rows
+  document.querySelectorAll('.table-row-hover').forEach(r=>{
+    r.addEventListener('mouseover',()=>r.style.background='var(--surface2)');
+    r.addEventListener('mouseout',()=>r.style.background='');
+  });
 }
 
-function renderJFKChart(c,container){
-  const vals=c.compGroups[0].data['JFK Total Enplanements'];
-  const canvasId='chart-jfk';
-  container.innerHTML='<div class="jfk-note">JFK Terminal 6 - NY Enplanements. Se muestra el volumen total anual de pasajeros del Aeropuerto JFK como metrica de referencia. Fuente: Port Authority of New York & New Jersey (PANYNJ).</div>'+
-    '<div class="chart-card"><div class="chart-hdr"><div class="chart-title">JFK Airport - Pasajeros Totales Anuales (millones)</div></div>'+
-    '<div class="chart-wrap" style="height:280px"><canvas id="'+canvasId+'"></canvas></div></div>';
-  killChart(canvasId);
-  CH[canvasId]=new Chart(document.getElementById(canvasId),{type:'bar',data:{labels:YEARS,datasets:[{label:'Pasajeros JFK (M)',data:vals,backgroundColor:YEARS.map(function(_,i){return hexAlpha('#34d399',i===YEARS.length-1?0.85:0.42);}),borderColor:'#34d399',borderWidth:1,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.raw+'M pasajeros';}}}},scales:{y:{grid:{color:'#1e2d4528'},ticks:{callback:function(v){return v+'M';}},title:{display:true,text:'Millones de pasajeros',color:'#64748b',font:{size:11}}},x:{grid:{display:false}}}}});
+function companyCard(c) {
+  const fundBadge = c.quantic ? `badge b-fund-q` : `badge b-fund-pre`;
+  return `
+  <div class="ov-card ${c.quantic?'q-card':''}" onclick="openCompany('${c.id}')">
+    <div class="ov-card-top">
+      <div class="ov-logo ${c.quantic?'q-logo':''}">${c.logoInitial}</div>
+      <div>
+        <div class="ov-company-name">${c.name}</div>
+        <div class="ov-sector">${c.sector}</div>
+      </div>
+    </div>
+    <div class="ov-badges">
+      <span class="${fundBadge}">${c.fund}</span>
+      <span class="badge b-metric">${c.metric}</span>
+      ${c.peers.length===0?'<span class="badge b-sector" style="background:rgba(239,68,68,.1);color:#f87171">No Public Peers</span>':''}
+    </div>
+    ${c.entryMultiple ? `<div class="ov-entry">Entry: <strong>${c.entryMultiple}</strong> · ${c.entryDate}</div>` : ''}
+  </div>`;
 }
 
-const DOC_ICONS={memo:'[M]',financial:'[F]',dd:'[DD]',legal:'[L]',report:'[R]',other:'[O]'};
-const DOC_LABELS={memo:'Investment Memo',financial:'Financial Model',dd:'Due Diligence',legal:'Legal',report:'Report / Update',other:'Otro'};
-let currentDocCo=null;
-function getDocs(id){try{return JSON.parse(localStorage.getItem('dr_'+id)||'[]');}catch(e){return[];}}
-function saveDocs(id,docs){localStorage.setItem('dr_'+id,JSON.stringify(docs));}
-function renderDataroom(id){
-  const c=PORTFOLIO[id];
-  const docs=getDocs(id);
-  const grid=docs.length?docs.map(function(d,i){return docCard(d,i,id);}).join(''):'<div class="dr-empty"><div style="font-size:40px;margin-bottom:10px">folder_icon</div><div>No hay documentos. Click en + Agregar Documento.</div></div>';
-  document.getElementById('tc-dataroom-'+id).innerHTML=
-    '<div class="dr-hdr"><div class="dr-title">Data Room - '+c.name+'</div>'+
-    '<button class="btn btn-sm" onclick="openDocModal(\''+id+'\')">+ Agregar Documento</button></div>'+
-    '<div class="dr-note">Los metadatos se guardan en este navegador (localStorage). Para compartir documentos, pega un link externo (Google Drive, Dropbox, SharePoint, etc.).</div>'+
-    '<div class="dr-grid">'+grid+'</div>';
+// ─── COMPANY DETAIL ────────────────────────────────────────────────────────
+let currentCompany = null;
+let isolatedSeries = null;
+
+function openCompany(id) {
+  currentCompany = id;
+  isolatedSeries = null;
+  const c = PORTFOLIO.find(x=>x.id===id);
+  if (!c) return;
+
+  // activate sidebar item
+  document.querySelectorAll('.sb-item').forEach(el=>{
+    el.classList.toggle('active', el.dataset.id===id);
+    if (el.dataset.id===id && c.quantic) el.classList.add('q');
+  });
+
+  showView('company');
+  renderCompanyDetail(c);
 }
-function docCard(doc,idx,coId){
-  const icon=DOC_ICONS[doc.type]||'[O]';
-  const label=DOC_LABELS[doc.type]||'Otro';
-  return '<div class="dr-card">'+
-    '<div class="dr-type">'+icon+' '+label+'</div>'+
-    '<div class="dr-name">'+doc.title+'</div>'+
-    (doc.desc?'<div class="dr-desc">'+doc.desc+'</div>':'')+
-    '<div class="dr-foot"><div class="dr-date">'+doc.date+'</div>'+
-    '<div style="display:flex;gap:6px;align-items:center">'+
-    (doc.url?'<a href="'+doc.url+'" target="_blank" rel="noopener" class="btn btn-sm">Abrir</a>':'')+
-    '<button class="btn btn-sm btn-danger" onclick="deleteDoc(\''+coId+'\','+idx+')">X</button>'+
-    '</div></div></div>';
+
+function renderCompanyDetail(c) {
+  const el = document.getElementById('v-company');
+  const isQ = c.quantic;
+  const accentColor = isQ ? 'var(--violet)' : 'var(--blue)';
+  const fundBadgeClass = isQ ? 'b-fund-q' : 'b-fund-pre';
+
+  let html = `
+  <div class="detail-header">
+    <div class="detail-top">
+      <div class="detail-logo ${isQ?'q':''}" style="color:${accentColor}">${c.logoInitial}</div>
+      <div style="flex:1">
+        <div class="detail-name">${c.name}</div>
+        <div class="detail-badges">
+          <span class="badge ${fundBadgeClass}">${c.fund}</span>
+          <span class="badge b-sector">${c.sector}</span>
+          <span class="badge b-metric">${c.metric}</span>
+          ${isQ ? '<span class="badge b-fund-q" style="background:rgba(139,92,246,.2)">FCP-Quantic</span>' : '<span class="badge b-fund-pre" style="background:rgba(59,130,246,.12)">Pre-Quantic</span>'}
+        </div>
+        <div class="detail-desc">${c.desc}</div>
+      </div>
+    </div>
+    <div class="detail-metrics">
+      <div>
+        <div class="dm-label">Fund</div>
+        <div class="dm-val">${c.fund}</div>
+      </div>
+      <div>
+        <div class="dm-label">Primary Metric</div>
+        <div class="dm-val">${c.metric}</div>
+      </div>
+      ${c.entryDate ? `<div>
+        <div class="dm-label">Entry Date</div>
+        <div class="dm-val">${c.entryDate}</div>
+      </div>` : ''}
+      ${c.entryMultiple ? `<div>
+        <div class="dm-label">Entry Multiple</div>
+        <div class="dm-val highlight">${c.entryMultiple}</div>
+      </div>` : ''}
+      <div>
+        <div class="dm-label">Comparables</div>
+        <div class="dm-val">${c.peers.length > 0 ? c.peers.length + ' peers' : 'None'}</div>
+      </div>
+    </div>
+  </div>
+  `;
+
+  // ── PEERS SECTION ──
+  if (c.peers.length > 0) {
+    const groups = [...new Set(c.peers.map(p=>p.group||'Peers'))];
+    html += `<div class="peers-card"><div class="peers-title">Comparable Companies</div>`;
+    groups.forEach(g => {
+      const gpeers = c.peers.filter(p=>(p.group||'Peers')===g);
+      if (groups.length > 1) html += `<div class="peers-group-label">${g}</div>`;
+      html += `<div class="peers-list">`;
+      gpeers.forEach(p => {
+        html += `<div class="peer-chip">
+          <div class="peer-dot" style="background:${p.color}"></div>
+          <span class="peer-chip-name">${p.name}</span>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `<div class="peers-card">
+      <div class="peers-title">Comparable Companies</div>
+      <div class="no-peers-box">
+        <div class="icon">◌</div>
+        ${c.noPeersNote || 'No public comparables identified for this investment.'}
+      </div>
+    </div>`;
+  }
+
+  // ── CHARTS ──
+  if (c.jfkData) {
+    // JFK special chart
+    html += `
+    <div class="chart-card">
+      <div class="chart-card-title">NYC Metro Airport Enplanements — Annual Volume</div>
+      <div class="chart-card-sub">JFK T6 tracked via NYC metro enplanement recovery. Source: Port Authority of NY & NJ / FAA data (approximate). Reference only.</div>
+      <div class="chart-warn">⚠ Illustrative reference data — cross-check with Port Authority of NY & NJ / FAA official statistics before use.</div>
+      <div class="chart-wrap h260"><canvas id="chart-jfk"></canvas></div>
+    </div>`;
+  } else if (c.peers.length > 0) {
+    // Historical trend
+    html += `
+    <div class="chart-card">
+      <div class="chart-card-title">
+        Historical ${c.metric} — Comparable Companies
+        <span style="font-size:10px;color:var(--text3);font-weight:400">Click a series to isolate it</span>
+      </div>
+      <div class="chart-card-sub">Trailing multiples based on last reported EBITDA. Annual data.</div>
+      <div class="chart-warn">⚠ Illustrative reference data — cross-check with Bloomberg / FactSet / Yahoo Finance before use. Last updated: March 2025.</div>
+      <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
+      <div class="chart-legend" id="legend-trend"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-title">Current Snapshot — ${c.metric} at Latest Period</div>
+      <div class="chart-card-sub">Latest available multiple for each comparable. Colors are consistent with the historical chart above.</div>
+      <div class="chart-warn">⚠ Illustrative reference data — verify before use.</div>
+      <div class="chart-wrap h260"><canvas id="chart-snapshot"></canvas></div>
+    </div>`;
+
+    // Entry vs sector (only for Quantic)
+    if (c.entryMultiple && c.entryVsSector) {
+      const evs = c.entryVsSector;
+      const discount = ((evs.fcpEntry - evs.sectorMedianAtEntry) / evs.sectorMedianAtEntry * 100).toFixed(1);
+      const isAbove = evs.fcpEntry > evs.sectorMedianAtEntry;
+      const chipClass = isAbove ? 'above' : 'below';
+      const chipText = isAbove ? `+${discount}% vs sector median` : `${discount}% vs sector median`;
+      html += `
+      <div class="chart-card">
+        <div class="chart-card-title">FCP Entry Multiple vs Sector Median</div>
+        <div class="chart-card-sub">Entry at ${c.entryDate} · ${c.entryMultiple} · Sector median at entry: ${evs.sectorMedianAtEntry.toFixed(1)}x</div>
+        <div class="entry-badge-row">
+          <span class="entry-chip ${chipClass}">${chipText}</span>
+          <span style="font-size:11px;color:var(--text3)">🟡 = FCP entry point</span>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:14px;line-height:1.7;padding:10px;background:var(--surface2);border-radius:6px">${evs.note}</div>
+        <div class="chart-warn">⚠ Illustrative reference data — verify before use.</div>
+        <div class="chart-wrap h260"><canvas id="chart-entry"></canvas></div>
+        <div class="chart-legend" id="legend-entry">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:transparent;border-top:2px dashed rgba(255,255,255,.85);width:16px;height:0"></div>
+            <span>Sector Median</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#f59e0b;border-radius:50%"></div>
+            <span>FCP Entry (${c.entryMultiple})</span>
+          </div>
+        </div>
+      </div>`;
+    }
+  }
+
+  // ── DATA ROOM ──
+  const docs = ['Investment Memo','IC Memo','DDQ','Management Presentation','Financial Model','Board Materials'];
+  const docIcons = {'Investment Memo':'📄','IC Memo':'📋','DDQ':'🔍','Management Presentation':'📊','Financial Model':'📈','Board Materials':'🗂️'};
+  html += `
+  <div class="dataroom-card">
+    <div class="dataroom-title">Data Room</div>
+    <div class="dataroom-grid">
+  `;
+  docs.forEach(doc => {
+    const hasLink = docLinks[c.id] && docLinks[c.id][doc];
+    html += `<button class="dr-btn" onclick="openDocModal('${c.id}','${doc}')">
+      <span class="dr-icon">${docIcons[doc]}</span>
+      <span class="dr-name">${doc}</span>
+      <span class="dr-status">${hasLink ? '✓ Linked' : 'Add link'}</span>
+    </button>`;
+  });
+  html += `</div></div>`;
+
+  // ── NOTES ──
+  html += `
+  <div class="notes-card">
+    <div class="notes-title">Executive Notes / Summary</div>
+    <textarea class="notes-area" id="notes-${c.id}" placeholder="Add notes, key observations, or executive summary for ${c.name}...">${notes[c.id]||''}</textarea>
+  </div>`;
+
+  el.innerHTML = html;
+
+  // Render charts
+  if (c.jfkData) {
+    buildJFKChart('chart-jfk', c.jfkData);
+  } else if (c.peers.length > 0) {
+    buildLineChart('chart-trend', c, null);
+    buildBarChart('chart-snapshot', c);
+    buildLegend('legend-trend', c, 'chart-trend');
+    if (c.entryMultiple && c.entryVsSector) {
+      buildEntryChart('chart-entry', c);
+    }
+  }
+
+  // Save notes on input
+  const ta = document.getElementById(`notes-${c.id}`);
+  if (ta) ta.addEventListener('input', () => { notes[c.id] = ta.value; });
 }
-function openDocModal(coId){
-  currentDocCo=coId;
-  ['docTitle','docDesc','docUrl'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('docType').value='memo';
-  document.getElementById('docModal').classList.remove('hidden');
-  setTimeout(function(){document.getElementById('docTitle').focus();},50);
+
+function buildLegend(legendId, company, chartId) {
+  const el = document.getElementById(legendId);
+  if (!el) return;
+  el.innerHTML = '';
+  company.peers.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<div class="legend-dot" style="background:${p.color}"></div><span>${p.name}</span>`;
+    item.addEventListener('click', () => {
+      isolatedSeries = (isolatedSeries === p.name) ? null : p.name;
+      buildLineChart(chartId, company, isolatedSeries);
+      buildLegend(legendId, company, chartId);
+      // update dimmed state
+      el.querySelectorAll('.legend-item').forEach((li,i) => {
+        const pname = company.peers[i] ? company.peers[i].name : null;
+        li.classList.toggle('dimmed', isolatedSeries && isolatedSeries !== pname);
+      });
+    });
+    el.appendChild(item);
+  });
+  // Median legend item
+  const med = document.createElement('div');
+  med.className = 'legend-item';
+  med.innerHTML = `<div class="legend-dot" style="background:transparent;border-top:2.5px dashed rgba(255,255,255,.85);width:16px;height:0"></div><span>Sector Median</span>`;
+  el.appendChild(med);
 }
-function closeModal(){document.getElementById('docModal').classList.add('hidden');}
-function saveDoc(){
-  const title=document.getElementById('docTitle').value.trim();
-  if(!title){alert('El titulo es obligatorio.');return;}
-  const doc={title:title,type:document.getElementById('docType').value,desc:document.getElementById('docDesc').value.trim(),url:document.getElementById('docUrl').value.trim(),date:new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'})};
-  const docs=getDocs(currentDocCo);docs.unshift(doc);saveDocs(currentDocCo,docs);closeModal();renderDataroom(currentDocCo);
+
+// ─── SIDEBAR ───────────────────────────────────────────────────────────────
+function renderSidebar() {
+  const sb = document.getElementById('sidebar');
+  const pre = PORTFOLIO.filter(c=>!c.quantic);
+  const q = PORTFOLIO.filter(c=>c.quantic);
+  let html = `
+  <div class="sb-section">
+    <div class="sb-label">Pre-Quantic</div>
+    ${pre.map(c=>`<div class="sb-item" data-id="${c.id}" onclick="openCompany('${c.id}')">
+      <span>${c.name}</span>
+      <span class="sb-badge pre">${c.fund}</span>
+    </div>`).join('')}
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">
+    <div class="sb-label">FCP-Quantic</div>
+    ${q.map(c=>`<div class="sb-item" data-id="${c.id}" onclick="openCompany('${c.id}')">
+      <span>${c.name}</span>
+      <span class="sb-badge q">${c.fund}</span>
+    </div>`).join('')}
+  </div>`;
+  sb.innerHTML = html;
 }
-function deleteDoc(coId,idx){
-  if(!confirm('Eliminar este documento?'))return;
-  const docs=getDocs(coId);docs.splice(idx,1);saveDocs(coId,docs);renderDataroom(coId);
+
+// ─── VIEWS ────────────────────────────────────────────────────────────────
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.hnav button').forEach(b=>b.classList.remove('active'));
+
+  if (name === 'overview') {
+    document.getElementById('v-overview').classList.add('active');
+    document.querySelector('.hnav button:first-child').classList.add('active');
+  } else if (name === 'portfolio') {
+    // Go to portfolio = overview but scroll to companies
+    document.getElementById('v-overview').classList.add('active');
+    document.querySelector('.hnav button:last-child').classList.add('active');
+    document.getElementById('v-overview').scrollTop = 300;
+  } else if (name === 'company') {
+    document.getElementById('v-company').classList.add('active');
+  }
 }
-document.getElementById('docModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+
+// ─── MODAL ────────────────────────────────────────────────────────────────
+function openDocModal(companyId, docName) {
+  const existing = docLinks[companyId] && docLinks[companyId][docName];
+  document.getElementById('modal-title').textContent = docName;
+  document.getElementById('modal-body').innerHTML = existing
+    ? `Document linked. URL: <strong style="color:var(--blue)">${existing}</strong><br><br>You can update the link below or open it directly.`
+    : `No document linked yet for <strong>${docName}</strong>.<br><br>Paste a URL or file path below to link this document. In a static environment, document storage requires an external system (Notion, SharePoint, Google Drive, etc.).`;
+  const input = document.getElementById('modal-link-input');
+  input.style.display = 'block';
+  input.value = existing || '';
+  input.placeholder = 'Paste document URL (e.g. https://drive.google.com/...)';
+
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="modal-btn primary" onclick="saveDocLink('${companyId}','${docName}')">Save Link</button>
+    ${existing ? `<button class="modal-btn ghost" onclick="window.open('${existing}','_blank')">Open Document</button>` : ''}
+    <button class="modal-btn ghost" onclick="closeModal()">Cancel</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function saveDocLink(companyId, docName) {
+  const val = document.getElementById('modal-link-input').value.trim();
+  if (!docLinks[companyId]) docLinks[companyId] = {};
+  docLinks[companyId][docName] = val;
+  closeModal();
+  // Re-render if current company
+  if (currentCompany === companyId) {
+    const c = PORTFOLIO.find(x=>x.id===companyId);
+    if (c) renderCompanyDetail(c);
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+}
+
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ─── TIMESTAMP ────────────────────────────────────────────────────────────
+function setTimestamp() {
+  const d = new Date();
+  const s = d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('stamp').textContent = `Reference: ${s}`;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+setTimestamp();
 renderSidebar();
+renderOverview();
 </script>
 </body>
 </html>
