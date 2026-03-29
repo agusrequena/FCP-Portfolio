@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FCP Portfolio Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
+<style>
+:root{
+  --navy:#0d1b2a;--blue:#1e3a8a;--blue2:#2563eb;--blue-lt:#dbeafe;--blue-mid:#bfdbfe;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --bg:#f8fafc;--card:#ffffff;--border:#e2e8f0;--border2:#f1f5f9;
+  --green:#059669;--red:#dc2626;--amber:#d97706;
+  --sw:258px;
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.55}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* LAYOUT */
+#shell{display:flex;min-height:100vh}
+#sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sw);background:var(--navy);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
+#sidebar::-webkit-scrollbar{width:3px}#sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1)}
+#main{margin-left:var(--sw);flex:1;min-width:0}
+#topbar{position:sticky;top:0;z-index:100;height:56px;background:rgba(248,250,252,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;gap:16px}
+#content{padding:28px;max-width:1380px}
+
+/* SIDEBAR */
+.sb-logo{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sb-logo-icon{width:34px;height:34px;background:var(--blue2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;letter-spacing:-.5px;flex-shrink:0}
+.sb-logo-name{color:#fff;font-size:14px;font-weight:700;letter-spacing:-.3px;line-height:1.2}
+.sb-logo-sub{color:rgba(255,255,255,.35);font-size:9px;font-weight:500;letter-spacing:.7px;text-transform:uppercase}
+.sb-label{padding:14px 18px 4px;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.25)}
+.sb-nav{padding:4px 8px;flex:1}
+.sb-nav a{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:5px;color:rgba(255,255,255,.55);text-decoration:none;font-size:12px;transition:all .12s;white-space:nowrap}
+.sb-nav a:hover{color:#fff;background:rgba(255,255,255,.07)}
+.sb-nav a.active{color:#fff;background:rgba(59,130,246,.18);font-weight:600}
+.sb-badge{font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);letter-spacing:.2px;flex-shrink:0}
+.sb-badge.q{background:rgba(59,130,246,.2);color:rgba(147,197,253,.8)}
+.sb-div{height:1px;background:rgba(255,255,255,.06);margin:5px 14px}
+.sb-footer{padding:10px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.25);line-height:1.6}
+
+/* TOPBAR */
+.tb-title{font-size:14px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.st-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)}
+.st-dot{width:6px;height:6px;border-radius:50%;background:var(--amber)}
+.btn-ref{display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .12s}
+.btn-ref:hover{background:#1e40af}.btn-ref:active{transform:scale(.98)}
+.btn-ref svg{transition:transform .4s}
+.spinning svg{animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* PAGE */
+.page-hd{margin-bottom:22px}
+.page-title{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.5px;margin-bottom:2px}
+.page-sub{font-size:12px;color:var(--text3)}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;box-shadow:var(--shadow)}
+.kpi-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:7px}
+.kpi-val{font-size:24px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-.5px;line-height:1.1}
+.kpi-note{font-size:10px;color:var(--text3);margin-top:3px}
+
+/* ERA SEP */
+.era-sep{display:flex;align-items:center;gap:14px;margin:32px 0 20px}
+.era-line{flex:1;height:1px;background:var(--border)}
+.era-badge{display:flex;align-items:center;gap:7px;padding:5px 14px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+.era-badge.pre{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+.era-badge.qnt{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+
+/* COMPANY CARD */
+.co{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden;box-shadow:var(--shadow)}
+.co-hdr{display:flex;align-items:center;gap:18px;padding:20px 24px;border-bottom:1px solid var(--border2);background:linear-gradient(135deg,#fafbfd 0%,#fff 100%)}
+.co-logo{width:52px;height:52px;border-radius:10px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:var(--shadow)}
+.co-logo img{width:44px;height:44px;object-fit:contain}
+.co-logo-ph{font-size:9px;font-weight:800;color:var(--text2);text-align:center;padding:3px;line-height:1.2}
+.co-info{flex:1;min-width:0}
+.co-fund{display:inline-block;padding:2px 7px;border-radius:3px;font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;margin-bottom:3px}
+.co-fund.pre{background:#f1f5f9;color:#475569}
+.co-fund.qnt{background:#eff6ff;color:#1d4ed8}
+.co-name{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.4px;margin-bottom:2px}
+.co-desc{font-size:11px;color:var(--text2);max-width:560px;line-height:1.5}
+.co-meta{display:flex;gap:20px;flex-shrink:0}
+.co-meta-item{text-align:right}
+.co-meta-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:2px}
+.co-meta-val{font-size:15px;font-weight:800;font-family:'DM Mono',monospace;color:var(--text);letter-spacing:-.3px}
+.co-meta-val.hi{color:var(--blue2)}
+
+/* TABS */
+.tabs{display:flex;padding:0 24px;border-bottom:1px solid var(--border);background:#fafbfc}
+.tab{padding:11px 14px;font-size:12px;font-weight:500;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s;font-family:inherit}
+.tab:hover{color:var(--text)}.tab.on{color:var(--blue);border-bottom-color:var(--blue);font-weight:700}
+.pane{display:none;padding:22px 24px}.pane.on{display:block}
+
+/* METRIC CARDS */
+.mcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-bottom:20px}
+.mc{border:1px solid var(--border2);border-radius:8px;padding:13px 15px}
+.mc-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:5px}
+.mc-val{font-size:18px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-.3px}
+.mc-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.up{color:var(--green)}.dn{color:var(--red)}
+
+/* CHARTS */
+.chart-box{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:18px;margin-bottom:16px}
+.ch-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px}
+.ch-sub{font-size:10px;color:var(--text3);margin-bottom:12px}
+.ch-src{font-size:9px;color:var(--text3);margin-top:6px;font-style:italic}
+.charts2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+
+/* PEER TABLE */
+.ptable-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);margin-top:14px}
+.ptable{width:100%;border-collapse:collapse;font-size:11px}
+.ptable th{background:#f8fafc;padding:9px 13px;text-align:left;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+.ptable td{padding:9px 13px;border-bottom:1px solid var(--border2)}
+.ptable tr:last-child td{border-bottom:none}.ptable tr:hover td{background:#fafbfc}
+.ptable .num{font-family:'DM Mono',monospace}
+.ptable .fcp td{background:#eff6ff;font-weight:700}.ptable .fcp .num{color:var(--blue2)}
+.ptable .med td{background:#f8fafc;font-style:italic;color:var(--text2)}
+.ptable .mn td{background:#f0fdf4;font-style:italic;color:#166534}
+.cdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+
+/* STAT BAR */
+.stat-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.stat-chip{padding:5px 11px;border-radius:16px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;white-space:nowrap}
+.sc-med{background:#f1f5f9;color:#475569}.sc-mn{background:#f0fdf4;color:#166534}
+.sc-fcp{background:#eff6ff;color:var(--blue2);border:1px solid var(--blue-mid)}
+
+/* DATA AVAILABILITY */
+.avail{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700}
+.av-ind{background:#fffbeb;color:#d97706}.av-ok{background:#f0fdf4;color:#16a34a}.av-na{background:#f1f5f9;color:#94a3b8}
+
+/* ENTRY NOTE */
+.entry-note{font-size:11px;color:var(--text2);background:#f8fafc;border:1px solid var(--border);border-left:3px solid var(--blue2);border-radius:5px;padding:9px 13px;margin-bottom:14px;line-height:1.5}
+
+/* LEVERAGE */
+.lev-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.lev-stat{text-align:center;padding:14px;border-radius:8px;border:1px solid var(--border2)}
+.lev-stat.entry{background:#f8fafc}.lev-stat.curr{background:#f0fdf4}
+.lev-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:5px}
+.lev-val{font-size:26px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-.5px}
+
+/* DATAROOM */
+.dr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:16px}
+.doc{border:1px dashed #cbd5e1;border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .15s;background:#fafbfc}
+.doc:hover{border-color:var(--blue2);border-style:solid;background:#eff6ff}
+.doc-icon{width:32px;height:32px;margin:0 auto 8px;background:#e2e8f0;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.doc-icon svg{width:16px;height:16px;color:#64748b}
+.doc:hover .doc-icon{background:#dbeafe}.doc:hover .doc-icon svg{color:var(--blue2)}
+.doc-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px}
+.doc-st{font-size:9px;color:var(--text3)}
+.notes-box{border:1px solid var(--border);border-radius:8px;padding:14px;background:#fffbf0;border-left:3px solid var(--amber);font-size:11px;color:var(--text2);line-height:1.7}
+
+/* PEER CHIPS */
+.peer-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;align-items:center}
+.peer-chip{display:flex;align-items:center;gap:5px;padding:4px 9px;background:#f8fafc;border:1px solid var(--border);border-radius:16px;font-size:10px;font-weight:500;color:var(--text2)}
+
+/* NO DATA */
+.nodata{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;text-align:center;color:var(--text3)}
+.nodata svg{margin-bottom:10px;opacity:.3}
+.nodata strong{display:block;font-size:12px;font-weight:700;color:var(--text2);margin-bottom:3px}
+.nodata p{font-size:11px}
+
+/* SUMMARY TABLE */
+.sum-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:20px}
+.sum-table{width:100%;border-collapse:collapse;font-size:11px}
+.sum-table th{background:#f8fafc;padding:9px 13px;text-align:left;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+.sum-table td{padding:9px 13px;border-bottom:1px solid var(--border2)}
+.sum-table tr:last-child td{border-bottom:none}.sum-table tr:hover td{background:#fafbfc}
+.sum-table .num{font-family:'DM Mono',monospace}
+.ec.pre{background:#f1f5f9;color:#475569;font-size:9px;font-weight:700;text-transform:uppercase;border-radius:3px;padding:2px 6px;white-space:nowrap}
+.ec.qnt{background:#eff6ff;color:#1d4ed8;font-size:9px;font-weight:700;text-transform:uppercase;border-radius:3px;padding:2px 6px;white-space:nowrap}
+.mark-up{color:var(--green);font-weight:700}.mark-dn{color:var(--red);font-weight:700}.mark-neu{color:var(--text2)}
+
+/* METRIC NOTE TAG */
+.mnt{font-size:9px;color:#d97706;background:#fffbeb;padding:2px 6px;border-radius:3px;font-weight:700;margin-left:6px;vertical-align:middle}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.charts2{grid-template-columns:1fr}}
+@media(max-width:768px){#sidebar{position:relative;width:100%;height:auto;max-height:56px;overflow:hidden}#main{margin-left:0}#content{padding:14px}.co-meta{display:none}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="shell">
+
+<nav id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">FCP</div>
+    <div><div class="sb-logo-name">FC Partners</div><div class="sb-logo-sub">Portfolio Platform</div></div>
+  </div>
+  <div class="sb-nav">
+    <a href="#overview" class="active" onclick="setActive(this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Portfolio Overview
+    </a>
+    <div class="sb-label">Pre-Quantic</div>
+    <a href="#asl" onclick="setActive(this)"><span class="sb-badge">I</span>ASL Aviation</a>
+    <a href="#datalink" onclick="setActive(this)"><span class="sb-badge">II</span>DataLink</a>
+    <a href="#tke" onclick="setActive(this)"><span class="sb-badge">III</span>TKE</a>
+    <a href="#clearway" onclick="setActive(this)"><span class="sb-badge">IV</span>Clearway</a>
+    <a href="#mcgraw" onclick="setActive(this)"><span class="sb-badge">V</span>McGraw Hill</a>
+    <a href="#fertility" onclick="setActive(this)"><span class="sb-badge">VI</span>Fertility Associates</a>
+    <a href="#breitling" onclick="setActive(this)"><span class="sb-badge">VII</span>Breitling</a>
+    <a href="#jfkt6" onclick="setActive(this)"><span class="sb-badge">VIII</span>JFK T6</a>
+    <a href="#aquaship" onclick="setActive(this)"><span class="sb-badge">IX</span>AquaShip</a>
+    <a href="#fisher" onclick="setActive(this)"><span class="sb-badge">X</span>Fisher Investments</a>
+    <a href="#vitaminwell" onclick="setActive(this)"><span class="sb-badge">XII</span>Vitamin Well</a>
+    <div class="sb-div"></div>
+    <div class="sb-label">FCP-Quantic</div>
+    <a href="#moneybox" onclick="setActive(this)"><span class="sb-badge q">XIII</span>MoneyBox</a>
+    <a href="#bold" onclick="setActive(this)"><span class="sb-badge q">XIV</span>Bold Production</a>
+    <a href="#karo" onclick="setActive(this)"><span class="sb-badge q">XV</span>Karo Healthcare</a>
+    <a href="#teneo" onclick="setActive(this)"><span class="sb-badge q">XVI</span>Teneo</a>
+    <a href="#basf" onclick="setActive(this)"><span class="sb-badge q">XVII</span>BASF Coatings</a>
+    <a href="#goldengoose" onclick="setActive(this)"><span class="sb-badge q">XVIII</span>Golden Goose</a>
+  </div>
+  <div class="sb-footer">Operating data: Q1 2026<br>Internal source: FCP Excel<br>Peers: Indicative / Yahoo Finance</div>
+</nav>
+
+<div id="main">
+  <div id="topbar">
+    <div class="tb-title">FCP Portfolio Intelligence</div>
+    <div class="tb-right">
+      <div class="st-pill"><span class="st-dot"></span>Internal data confirmed &middot; Peer data indicative</div>
+      <button class="btn-ref" id="btn-ref" onclick="doRefresh()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div id="content">
+    <section id="overview">
+      <div class="page-hd">
+        <h1 class="page-title">Portfolio Overview</h1>
+        <p class="page-sub">FC Partners &middot; FCP I – FCP XVIII &middot; 18 portfolio companies &middot; Data as of Q1 2026</p>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-lbl">Total Companies</div><div class="kpi-val">18</div><div class="kpi-note">FCP I through FCP XVIII</div></div>
+        <div class="kpi"><div class="kpi-lbl">FCP-Quantic</div><div class="kpi-val">6</div><div class="kpi-note">FCP XIII–XVIII · 2025–2026 vintage</div></div>
+        <div class="kpi"><div class="kpi-lbl">Avg Quantic Entry</div><div class="kpi-val">12.4x</div><div class="kpi-note">EV/EBITDA weighted (excl. Golden Goose EBIT)</div></div>
+        <div class="kpi"><div class="kpi-lbl">Companies w/ Op. Data</div><div class="kpi-val">13</div><div class="kpi-note">Active EBITDA history from internal data</div></div>
+      </div>
+      <div class="charts2">
+        <div class="chart-box">
+          <div class="ch-title">Valuation Marks — Indexed to Entry (1.0x = cost)</div>
+          <div class="ch-sub">Source: FCP internal operating data. Companies with available mark data only. Double-click a line to isolate it.</div>
+          <div id="ch-ov-marks" style="height:320px"></div>
+        </div>
+        <div class="chart-box">
+          <div class="ch-title">Latest Quarter EBITDA (local currency, mm)</div>
+          <div class="ch-sub">Source: FCP internal operating data. Most recent available quarter.</div>
+          <div id="ch-ov-ebitda" style="height:320px"></div>
+        </div>
+      </div>
+      <div class="chart-box">
+        <div class="ch-title">Leverage at Entry vs. Current — Net Debt / EBITDA</div>
+        <div class="ch-sub">Source: FCP Leverage sheet (internal). Companies with available leverage data only. 6.0x reference line shown.</div>
+        <div id="ch-ov-lev" style="height:260px"></div>
+      </div>
+      <div class="ch-title" style="margin-bottom:10px;font-size:13px">Portfolio Summary</div>
+      <div class="sum-table-wrap"><table class="sum-table" id="sum-table"></table></div>
+    </section>
+    <div id="co-container"></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ── DATA LAYER ────────────────────────────────────────────────────────
+const Q27=['3Q19','4Q19','1Q20','2Q20','3Q20','4Q20','1Q21','2Q21','3Q21','4Q21','1Q22','2Q22','3Q22','4Q22','1Q23','2Q23','3Q23','4Q23','1Q24','2Q24','3Q24','4Q24','1Q25','2Q25','3Q25','4Q25','1Q26'];
+function median(a){const s=[...a].filter(v=>v!=null&&!isNaN(v)).sort((x,y)=>x-y);if(!s.length)return null;const m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2}
+function mean(a){const s=a.filter(v=>v!=null&&!isNaN(v));return s.length?s.reduce((x,y)=>x+y,0)/s.length:null}
+function f1(v){return v==null?'—':(+v).toFixed(1)}
+function fx(v){return v==null?'—':(+v).toFixed(1)+'x'}
+function fp(v){return v==null?'—':(+v).toFixed(1)+'%'}
+
+const CL={asl:'#2563eb',datalink:'#059669',tke:'#d97706',clearway:'#7c3aed',mcgraw:'#db2777',fertility:'#0891b2',breitling:'#92400e',jfkt6:'#374151',aquaship:'#065f46',fisher:'#6d28d9',vitaminwell:'#dc2626',moneybox:'#1d4ed8',bold:'#b45309',karo:'#be185d',teneo:'#0f766e',basf:'#5b21b6',goldengoose:'#a16207'};
+
+const DS=[
+ {id:'asl',fund:'FCP I',era:'pre',color:CL.asl,name:'ASL Aviation Group',metric:'EBITDA',cur:'€',domain:'aslaviation.com',
+  desc:'Global aviation services group — ACMI wet-lease, charter, cargo freighters across Europe, Africa, Asia-Pacific.',
+  entryDate:null,em:null,emN:null,
+  q:['3Q19','4Q19','1Q20','2Q20','3Q20','4Q20','1Q21','2Q21','3Q21','4Q21','1Q22','2Q22','3Q22','4Q22','1Q23','2Q23','3Q23','4Q23','1Q24','2Q24','3Q24','4Q24','1Q25','2Q25','3Q25','4Q25'],
+  rev:[1088.2,1059.3,1118,1129,1129,936,903,889,965,1045,1045,1258,1416,1527,1647,1634,1577,1513,1457,1491,1385,1562,1846,1686,1835,1729],
+  eb:[67.47,57.26,77,83,83,71,45,53,59,84,84,143,186,229,229,218,174,137,84,79,83,117,159,168,187,170],
+  em_:[6.2,5.4,6.9,7.4,7.4,7.6,5.0,6.0,6.1,8.0,8.0,11.4,13.1,15.0,13.9,13.3,11.0,9.1,5.8,5.3,6.0,7.5,8.6,10.0,10.2,9.8],
+  mk:[1,1.15,1.18,1,1.2,1.4,1.8,2,1.8,2.1,2.9,2.9,3.1,3.2,3.4,3.29,2.95,2.72,2.723,2.82,2.7,2.8,3.0,2.8,2.8,2.6],
+  lev:{en:1.0,cu:1.5,s:[1.0,1.312,0.867,0.867,0.577,1.333,1.566,2.169,1.298,0.940,0.615,0.344,0.463,0.856,1.193,1.879,2.982,4.071,3.658,3.458,2.084,1.410,1.315,1.098,1.516]},
+  peers:[
+   {n:'ATSG',c:'#6b7280',ltm:3.5,d:'atsgi.com',h:[6.2,6.0,5.5,4.8,3.5,4.2,5.5,6.0,6.5,6.8,7.0,6.5,6.2,5.8,5.5,5.2,5.0,5.3,5.5,5.2,4.8,4.5,4.2,4.0,3.8,3.5,null]},
+   {n:'Atlas Air (pvt.2023)',c:'#9ca3af',ltm:null,d:'atlasaircargo.com',note:'Taken private Q1 2023',h:[6.5,6.2,5.8,5.2,3.5,4.5,7.0,7.5,7.8,8.0,8.5,8.0,7.5,7.0,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+   {n:'Regional Express',c:'#d1d5db',ltm:1.5,d:'rex.com.au',h:[4.5,4.2,3.8,3.2,2.0,2.5,4.0,4.5,5.0,5.2,5.5,5.0,4.5,4.2,3.8,3.5,3.2,3.0,3.0,2.8,2.5,2.5,2.2,2.0,1.8,1.5,null]},
+   {n:'Alliance Aviation',c:'#94a3b8',ltm:4.0,d:'allianceaviation.com.au',h:[5.5,5.2,4.8,4.2,3.0,4.0,6.0,6.5,7.0,7.5,8.0,7.5,7.0,6.5,6.0,5.5,5.0,4.8,5.0,5.5,5.2,5.0,4.8,4.5,4.5,4.2,null]},
+  ],
+  peerN:'Cargo aviation. Atlas Air taken private 2023 — historical data shown to Q3 2022. EV/EBITDA LTM. Source: Yahoo Finance (indicative).',
+  notes:'ASL Aviation: EBITDA grew from €67mm (3Q19) to €229mm peak (2Q22) driven by COVID-era cargo surge. Post-peak normalization to €170mm (4Q25). Valuation mark 2.6x. Leverage low at 1.5x.'
+ },
+ {id:'datalink',fund:'FCP II',era:'pre',color:CL.datalink,name:'DataLink',metric:'EBITDA',cur:'$',domain:'datalink.com',
+  desc:'Healthcare IT and workforce solutions provider. Portfolio status: needs verification (internal system shows "Dead").',
+  entryDate:null,em:null,emN:null,
+  q:['3Q20','4Q20','1Q21','2Q21','3Q21','4Q21','1Q22','2Q22','3Q22','4Q22','1Q23','2Q23','3Q23','4Q23','1Q24','2Q24','3Q24'],
+  rev:null,
+  eb:[27.46,25.2,27.11,26.94,24.62,23.40,22.10,22.67,24.44,27.13,27.9,28.52,28.52,25.22,24.45,19.01,15.81],
+  em_:[58.8,61.0,62.3,61.2,56.5,51.8,48.7,47.0,47.5,49.6,49.6,50.6,50.0,45.1,43.4,37.4,null],
+  mk:[1,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.4,null,null],
+  lev:{en:null,cu:null,s:[]},peers:[],noComps:true,
+  peerN:'No public comparables identified for DataLink. Healthcare IT niche with limited peer universe.',
+  notes:'DataLink: EBITDA peaked ~$28.5mm (2Q23), declining to $15.8mm (3Q24). Mark held at 1.5x for extended period then dropped to 1.4x. No leverage data. Portfolio status requires verification.'
+ },
+ {id:'tke',fund:'FCP III',era:'pre',color:CL.tke,name:'TKE (thyssenkrupp Elevator)',metric:'EBITDA',cur:'€',domain:'tkelevator.com',
+  desc:'One of the world\'s largest elevator and escalator manufacturers and service providers, spun off from thyssenkrupp AG in 2020.',
+  entryDate:null,em:null,emN:null,
+  q:['2Q20','3Q20','4Q20','1Q21','2Q21','3Q21','4Q21','1Q22','2Q22','3Q22','4Q22','1Q23','2Q23','3Q23','4Q23','1Q24','2Q24','3Q24','4Q24','1Q25','2Q25','3Q25','4Q25'],
+  rev:[7960,7855,7857,7866,7939,7959,8092,8141,8333,8531,8656,8818,8919,8924,9020,9305,9216,9302,9385,9373,9287,9240,9181],
+  eb:[948,1040,1080,1109,1128,1136,1152,1159,1132,1145,1121,1141,1230,1304,1362,1405,1442,1471,1511,1556,1588,1617,1625],
+  em_:[11.9,13.2,13.7,14.1,14.2,14.3,14.2,14.2,13.6,13.4,13.0,12.9,13.8,14.6,15.1,15.1,15.6,15.8,16.1,16.6,17.1,17.5,17.7],
+  mk:[1,1,1,1,1.26,1.26,1.32,1.16,1.06,1.06,1.4,1.51,1.51,1.36,1.55,1.62,1.742,1.75,1.7,1.86,1.99,2.13,2.07],
+  lev:{en:6.2,cu:4.5,s:[6.2,6.2,6.2,6.1,6.0,6.0,6.1,6.3,6.3,6.0,6.0,5.9,5.9,5.7,5.5,5.3,5.2,5.1,5.0,4.7,4.5,4.5]},
+  peers:[
+   {n:'Schindler',c:'#ef4444',ltm:14.5,d:'schindler.com',h:[12.5,12.8,11.5,10.0,9.5,10.5,12.0,13.0,14.5,15.0,15.5,15.0,14.5,13.5,13.0,12.5,12.0,12.5,13.0,13.5,13.5,13.0,13.5,14.0,14.5,14.2,14.5]},
+   {n:'KONE',c:'#3b82f6',ltm:16.0,d:'kone.com',h:[14.0,14.5,13.0,11.5,11.0,12.0,14.0,15.5,17.0,18.0,17.5,16.5,15.5,14.5,14.0,13.5,13.0,13.5,14.0,14.5,15.0,15.0,15.5,16.0,16.5,16.2,16.0]},
+   {n:'Otis',c:'#10b981',ltm:16.5,d:'otis.com',h:[14.5,15.0,13.5,12.0,11.5,12.5,14.5,16.0,17.0,17.5,17.0,16.5,15.5,14.5,14.0,13.5,13.0,13.5,14.5,15.0,15.5,15.5,15.5,16.0,16.5,16.2,16.5]},
+  ],
+  peerN:'Elevator & escalator OEM/services. EV/EBITDA LTM. Source: Yahoo Finance (indicative).',
+  notes:'TKE: Revenue +15% (€7.9bn→9.2bn). EBITDA +71% (€948mm→1,625mm) with margin 11.9%→17.7%. Leverage 6.2x→4.5x (steady deleveraging). Valuation mark 2.07x.'
+ },
+ {id:'clearway',fund:'FCP IV',era:'pre',color:CL.clearway,name:'Clearway',metric:'EBITDA',cur:'$',domain:'clearway.com',
+  desc:'Renewable energy and infrastructure services platform focused on structured financing and energy transition.',
+  entryDate:null,em:null,emN:null,
+  q:['3Q21','4Q21','1Q22','2Q22','3Q22','4Q22','1Q23','2Q23','3Q23','4Q23','1Q24','2Q24','3Q24','4Q24','1Q25','2Q25'],
+  rev:[28.0,30.67,31.11,32.61,34.65,38.58,42.39,45.84,50.17,52.5,56.44,63.06,70.35,78.78,85.46,88.38],
+  eb:[5.6,6.47,6.43,6.40,6.66,7.48,8.51,9.48,10.34,10.7,10.88,11.2,11.95,13.1,13.58,13.89],
+  em_:[20.0,21.1,20.7,19.6,19.2,19.4,20.1,20.7,20.6,20.4,19.3,17.8,17.0,16.6,15.9,15.7],
+  mk:[1,1,1,1,1,1,1,1.4,1.51,1.91,1.91,1.43,1.58,1.73,1.71,1.69],
+  lev:{en:1.8,cu:3.7,s:[1.8,2.06,2.42,3.06,3.22,3.09,3.17,2.99,2.54,3.61,3.98,4.18,4.37,4.73,4.46,5.12,5.75,3.7]},
+  peers:[],noComps:true,
+  peerN:'No direct public comparables identified. Niche infrastructure/renewables services platform.',
+  notes:'Clearway: Revenue $28mm→$88mm (+215%). EBITDA $5.6mm→$13.9mm. Valuation mark 1.69x. Leverage increasing 1.8x→3.7x (monitoring required).'
+ },
+ {id:'mcgraw',fund:'FCP V',era:'pre',color:CL.mcgraw,name:'McGraw Hill',metric:'EBITDA',cur:'$',domain:'mheducation.com',
+  desc:'Leading educational content and technology company serving higher education, K-12, and professional markets globally.',
+  entryDate:null,em:null,emN:null,
+  q:['4Q21','1Q22','2Q22','3Q22','4Q22','1Q23','2Q23','3Q23','4Q23','1Q24','2Q24','3Q24','4Q24','1Q25','2Q25','3Q25','4Q25'],
+  rev:[1598,1748,1790,1864,1907,1911,1948,1938,2002,1977,2022,2128,2252,2047,2101,2317,2097],
+  eb:[435,637,630,705,803,772,776,719,674,658,728,824,920,923,896,834,738],
+  em_:[27.2,36.4,35.2,37.8,42.1,40.4,39.8,37.1,33.7,33.3,36.0,38.7,40.9,45.1,42.6,36.0,35.2],
+  mk:[1,1,1.93,2.19,2.68,2.58,2.6,2.14,2.19,1.94,1.97,2.51,2.63,2.62,2.71,2.33,1.76],
+  lev:{en:5.2,cu:3.1,s:[5.2,4.5,4.6,4.5,4.3,4.2,4.4,4.9,4.9,4.8,4.6,4.1,3.3,3.0,3.2,3.6,3.3,3.1]},
+  peers:[
+   {n:'Pearson',c:'#3b82f6',ltm:12.0,d:'pearson.com',h:[null,null,9.0,8.5,8.0,8.5,9.0,10.0,11.0,12.0,12.5,12.0,11.0,10.5,10.0,9.5,9.5,10.0,10.5,11.0,11.5,11.5,12.0,12.5,12.5,12.2,12.0]},
+   {n:'Chegg',c:'#f59e0b',ltm:null,d:'chegg.com',note:'Severe decline since 2022',h:[null,null,25.0,30.0,35.0,32.0,28.0,22.0,18.0,15.0,10.0,7.0,5.0,4.0,5.0,4.5,4.0,3.5,3.5,3.0,2.5,2.0,null,null,null,null,null]},
+   {n:'Grand Canyon Edu.',c:'#8b5cf6',ltm:12.0,d:'gcu.edu',h:[null,null,10.0,9.5,9.0,10.0,11.0,12.0,13.0,13.5,14.0,13.5,13.0,12.5,12.0,11.5,11.5,12.0,12.5,12.5,12.5,12.0,12.0,12.5,12.5,12.2,12.0]},
+   {n:'K12 / Stride',c:'#10b981',ltm:11.0,d:'stridelearning.com',h:[null,null,8.0,7.5,8.0,9.5,11.0,13.0,15.0,14.0,12.0,11.0,10.0,9.5,9.0,9.5,10.0,10.5,10.5,11.0,11.5,11.5,11.0,11.0,11.5,11.0,11.0]},
+   {n:'Wiley (pvt.2023)',c:'#6b7280',ltm:null,d:'wiley.com',note:'Privatized 2023',h:[null,null,8.0,7.5,7.0,7.5,8.0,8.5,9.0,9.5,9.5,9.0,8.5,8.0,7.5,7.0,7.0,null,null,null,null,null,null,null,null,null,null]},
+  ],
+  peerN:'Large publisher + EdTech peers (2 sub-groups). Wiley & Cengage are private. EV/EBITDA LTM. Source: Yahoo Finance (indicative).',
+  notes:'McGraw Hill: Revenue $1.6bn→$2.3bn peak. EBITDA $435mm→$920mm. Digital billings >72%. Valuation mark 1.76x (peak 2.71x). Leverage 5.2x→3.1x.'
+ },
+ {id:'fertility',fund:'FCP VI',era:'pre',color:CL.fertility,name:'Fertility Associates',metric:'EBITDA',cur:'NZ$',domain:'fertilityassociates.co.nz',
+  desc:'Leading New Zealand-based fertility and IVF services provider, with operations across Australasia.',
+  entryDate:null,em:null,emN:null,
+  q:['1Q22','2Q22','3Q22','4Q22','1Q23','2Q23','3Q23','4Q23','1Q24','2Q24','3Q24','4Q24','1Q25','2Q25','3Q25','4Q25'],
+  rev:[56.77,68.74,68.17,69.88,70.37,72.94,73.94,71.77,72.19,67.94,68.43,70.05,51.39,68.43,84.20,86.23],
+  eb:[17.09,19.28,19.74,17.09,16.08,17.0,16.96,15.86,15.45,17.0,17.5,16.60,15.26,17.5,17.56,17.49],
+  em_:[30.1,28.1,29.0,24.5,22.9,23.3,22.9,22.1,21.4,25.0,25.6,23.7,29.7,25.6,20.9,20.3],
+  mk:[1,1,1,1,1,1,1,1,1,1,1.3,1.3,1.3,1.34,1.25,1.34],
+  lev:{en:2.8,cu:2.362,s:[2.8,2.926,2.894,2.670,2.702,2.757,2.750,2.207,2.176,2.235,2.675,2.205,2.161,2.146,2.362]},
+  peers:[
+   {n:'Monash IVF',c:'#ec4899',ltm:14.0,d:'monashivf.com',h:[null,null,null,null,null,null,null,null,null,11.0,12.0,13.5,14.5,15.0,14.5,14.0,13.5,13.0,13.0,12.5,12.0,12.5,13.0,13.5,14.0,13.8,14.0]},
+   {n:'Virtus Health (pvt.)',c:'#a78bfa',ltm:null,d:'virtushealth.com.au',note:'Acquired/pvt. 2022',h:[null,null,null,null,null,null,null,null,null,10.0,11.5,12.5,13.5,14.0,13.5,null,null,null,null,null,null,null,null,null,null,null,null]},
+   {n:'Alpha IVF (MY)',c:'#6b7280',ltm:null,d:'alphaivf.com',note:'Bursa-listed, limited liquidity',h:Array(27).fill(null)},
+  ],
+  peerN:'IVF/fertility services. Very limited public peer universe — most peers are private. EV/EBITDA LTM. Source: Yahoo Finance (indicative).',
+  notes:'Fertility Associates: EBITDA flat NZ$15-19mm. Revenue modest growth. Valuation mark 1.34x. Leverage well-managed at 2.36x.'
+ },
+ {id:'breitling',fund:'FCP VII',era:'pre',color:CL.breitling,name:'Breitling',metric:'EBITDA',cur:'CHF',domain:'breitling.com',
+  desc:'Swiss luxury watchmaker, founded 1884. Professional pilot and diver watches. Strong brand heritage in aviation and ocean exploration.',
+  entryDate:null,em:null,emN:null,
+  q:['2Q23','3Q23','4Q23','1Q24','2Q24','3Q24','4Q24','1Q25','2Q25','3Q25','4Q25'],
+  rev:[874.8,837.0,850.1,845.8,761.0,739.6,805.4,802.0,790.1,761.1,754.7],
+  eb:[236.2,226.0,210.0,194.0,183.0,170.1,160.0,161.0,153.8,149.3,135.0],
+  em_:[27.0,27.0,24.7,22.9,24.0,23.0,19.9,20.1,19.5,19.6,17.9],
+  mk:[1,1,1,1,0.99,0.93,0.79,0.79,0.50,0.50,0.50],
+  lev:{en:4.297,cu:8.15,s:[4.297,4.370,4.802,5.300,5.747,6.276,6.534,6.602,6.992,7.869,8.149]},
+  peers:[
+   {n:'LVMH',c:'#a78bfa',ltm:14.0,d:'lvmh.com',h:[13.5,14.0,12.0,11.0,10.5,11.5,14.0,16.0,18.0,19.0,18.5,17.5,16.0,15.0,14.5,13.5,13.0,13.5,14.0,14.5,14.5,14.0,13.5,14.0,14.5,14.2,14.0]},
+   {n:'Richemont',c:'#f59e0b',ltm:13.0,d:'richemont.com',h:[12.0,12.5,10.5,9.5,9.0,10.0,13.0,15.5,17.5,19.0,18.5,17.0,15.5,14.0,13.5,12.5,12.0,13.0,13.5,13.0,13.5,13.0,12.5,13.0,13.5,13.2,13.0]},
+   {n:'Kering',c:'#10b981',ltm:8.0,d:'kering.com',h:[11.0,11.5,9.5,8.5,8.0,9.0,11.5,14.0,16.0,18.0,17.0,15.5,14.0,12.5,12.0,11.0,10.0,10.5,11.0,10.5,10.0,9.0,8.5,8.5,8.5,8.2,8.0]},
+   {n:'Swatch Group',c:'#ef4444',ltm:5.0,d:'swatchgroup.com',h:[8.0,8.5,6.5,5.5,5.0,5.5,7.0,8.5,10.0,11.0,10.5,9.5,8.5,7.5,7.0,6.5,6.0,6.5,7.0,7.0,7.0,6.5,6.0,5.5,5.0,4.8,5.0]},
+  ],
+  peerN:'Global luxury conglomerates/watch groups. Breitling is private; public comps used. EV/EBITDA LTM. Source: Yahoo Finance (indicative).',
+  notes:'ALERT: Breitling valuation mark 0.50x (material write-down from 1.0x). EBITDA declining CHF236mm→135mm (-43%). Revenue declining YoY. Leverage rising sharply 4.3x→8.1x. Luxury watch market headwinds, China demand softening.'
+ },
+ {id:'jfkt6',fund:'FCP VIII',era:'pre',color:CL.jfkt6,name:'JFK Terminal 6',metric:'Enplanements',cur:'',domain:'jfkairport.com',
+  desc:'Greenfield development of Terminal 6 at John F. Kennedy International Airport. Infrastructure investment under construction.',
+  entryDate:null,em:null,emN:null,
+  q:null,rev:null,eb:null,em_:null,mk:null,
+  lev:{en:null,cu:null,s:[]},peers:[],noComps:true,
+  specialViz:'jfk',
+  enpl:{labs:['2019','2020','2021','2022','2023','2024E','2025E','2026E'],jfk:[31.2,10.8,17.5,26.8,30.1,31.8,33.2,34.5],lga:[15.4,5.2,8.9,14.3,16.1,16.8,17.5,18.0],ewr:[20.1,7.1,11.8,18.4,20.5,21.2,22.0,22.8]},
+  peerN:'No traditional valuation multiples. Greenfield infrastructure. Primary metric: JFK/NYC enplanements as demand indicator.',
+  notes:'JFK T6: Greenfield terminal development. No EBITDA or financial data available (under construction). Enplanements show JFK fully recovered past pre-COVID levels. T6 opens into a strong demand environment.'
+ },
+ {id:'aquaship',fund:'FCP IX',era:'pre',color:CL.aquaship,name:'AquaShip',metric:'EBITDA',cur:'$',domain:'aquaship.com',
+  desc:'Marine services and offshore vessel support company.',
+  entryDate:null,em:null,emN:null,
+  q:['2Q24','3Q24','4Q24','1Q25','2Q25','3Q25'],
+  rev:[105,105,107,167,199,231],
+  eb:[44,45,47,93,105,117],
+  em_:[3.8,3.9,4.1,8.1,null,10.1],
+  mk:Array(6).fill(null),
+  lev:{en:6.104,cu:6.241,s:[6.104,6.242,6.184,6.203,6.182,6.241]},
+  peers:[
+   {n:'Froy (Oslo: FROY)',c:'#6b7280',ltm:null,d:'froygroup.com',note:'Norwegian wellboat; limited liquidity',h:Array(27).fill(null)},
+  ],
+  peerN:'Very limited peer universe. Only Froy identified as listed comparable (Oslo-listed, limited liquidity).',
+  notes:'AquaShip: Very early in cycle — 6 quarters of data. EBITDA growing rapidly $44mm→$117mm. Revenue ramping. Leverage elevated at 6.2x but EBITDA growth mitigates concern.'
+ },
+ {id:'fisher',fund:'FCP X',era:'pre',color:CL.fisher,name:'Fisher Investments',metric:'Fee Related Earnings (FRE)',cur:'$',domain:'fisherinvestments.com',
+  desc:'Large independent fee-only investment adviser managing assets for high-net-worth individuals globally.',
+  entryDate:null,em:null,emN:null,
+  q:null,rev:null,eb:null,em_:null,mk:null,
+  lev:{en:null,cu:null,s:[]},
+  specialViz:'fisher',
+  peers:[
+   {n:'Blackstone (FRE)',c:'#374151',ltm:35.0,d:'blackstone.com',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,30.0,32.0,35.0,34.0,35.0]},
+   {n:'KKR (FRE)',c:'#1d4ed8',ltm:32.0,d:'kkr.com',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,25.0,28.0,32.0,31.0,32.0]},
+   {n:'Apollo (FRE)',c:'#7c3aed',ltm:32.0,d:'apollo.com',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,28.0,30.0,32.0,31.0,32.0]},
+   {n:'Ares (FRE)',c:'#059669',ltm:38.0,d:'aresmgmt.com',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,32.0,35.0,38.0,37.0,38.0]},
+   {n:'Carlyle (FRE)',c:'#dc2626',ltm:22.0,d:'carlyle.com',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,18.0,20.0,22.0,21.0,22.0]},
+   {n:'Blue Owl (FRE)',c:'#0891b2',ltm:35.0,d:'blueowlcapital.com',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,30.0,32.0,35.0,34.0,35.0]},
+   {n:'TPG (FRE)',c:'#f59e0b',ltm:26.0,d:'tpg.com',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,22.0,24.0,26.0,25.0,26.0]},
+  ],
+  peerN:'Primary metric: P/FRE. Public alt-asset managers as closest proxies. Fisher is private. Source: public filings/consensus (indicative).',
+  notes:'Fisher Investments: No op. data loaded (entry 4Q24). Primary metric is Fee Related Earnings. Unique private wealth manager — differs from PE-model alt managers. Peer P/FRE multiples range 22x–38x.'
+ },
+ {id:'vitaminwell',fund:'FCP XII',era:'pre',color:CL.vitaminwell,name:'Vitamin Well Group',metric:'EBITDA',cur:'SEK',domain:'vitaminwell.com',
+  desc:'Swedish functional beverage company — Vitamin Well, NOCCO, and other health-focused drink brands sold across Europe.',
+  entryDate:null,em:null,emN:null,
+  q:['4Q24','1Q25','2Q25','3Q25','4Q25'],
+  rev:[6535,7088.5,7921,8603.7,9327],
+  eb:[1718,1833.1,2039,2170.7,2310],
+  em_:null,
+  mk:Array(5).fill(null),
+  lev:{en:3.8,cu:2.4,s:[3.8,3.4,3.0,2.7,2.4]},
+  peers:[
+   {n:'Celsius',c:'#ef4444',ltm:12.0,d:'celsiusenergy.com',h:[15.0,18.0,16.0,20.0,25.0,30.0,35.0,45.0,55.0,65.0,70.0,65.0,55.0,40.0,30.0,25.0,22.0,20.0,18.0,16.0,15.0,14.0,14.0,13.0,13.0,12.5,12.0]},
+   {n:'Monster Beverage',c:'#10b981',ltm:21.5,d:'monsterbevcorp.com',h:[20.0,21.0,19.0,18.0,17.0,18.5,20.0,22.0,24.0,25.0,25.0,23.0,21.0,20.0,19.5,19.0,19.0,19.5,20.0,20.5,21.0,21.0,21.0,21.5,21.5,21.2,21.5]},
+   {n:'Fever-Tree',c:'#f59e0b',ltm:19.0,d:'fever-tree.com',h:[22.0,23.0,20.0,18.0,17.0,18.0,22.0,25.0,28.0,30.0,28.0,25.0,22.0,19.0,18.0,17.0,16.0,16.5,17.0,17.5,18.0,18.0,18.0,18.5,19.0,18.8,19.0]},
+   {n:'BellRing Brands',c:'#8b5cf6',ltm:21.5,d:'bellring.com',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,20.0,21.0,21.5]},
+   {n:'Vita Coco',c:'#059669',ltm:15.0,d:'vitacoco.com',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,16.0,15.5,15.0]},
+  ],
+  peerN:'Functional/specialty beverage peers. Celsius historically extreme premium (now normalized ~12x). EV/EBITDA LTM. Source: Yahoo Finance (indicative).',
+  notes:'Vitamin Well: Revenue SEK 6.5bn→9.3bn. EBITDA SEK 1.7bn→2.3bn in 5 quarters. Leverage improving 3.8x→2.4x. Limited history (5 quarters). No valuation mark available yet.'
+ },
+ // FCP-QUANTIC
+ {id:'moneybox',fund:'FCP XIII',era:'quantic',color:CL.moneybox,name:'MoneyBox',metric:'EBITDA',cur:'£',domain:'moneyboxapp.com',
+  desc:'UK digital savings and investment platform — ISAs, pensions, and mortgages for millennial retail investors.',
+  entryDate:'January 2025',em:'19.8x EBITDA',emN:19.8,
+  q:['4Q24','1Q25','2Q25','3Q25','4Q25'],
+  rev:[93.3,97.1,97.88,104.95,115.63],
+  eb:[21.443,17.338,9.299,10.6,18.5],
+  em_:[23.0,17.9,9.5,10.1,16.0],
+  mk:[1,1,1.5,1.44,1.44],
+  aum:[11683648802,13697221737,16564486780,17800723581,19045827064],
+  lev:{en:null,cu:null,s:[]},
+  peers:[
+   {n:'Hargreaves Lansdown',c:'#2563eb',ltm:20.0,d:'hl.co.uk',h:[14.0,14.5,13.5,12.5,12.0,13.0,14.5,16.0,18.0,20.0,21.0,20.0,18.5,17.0,16.5,15.5,15.0,15.5,16.0,16.5,18.0,19.0,18.5,19.0,20.0,19.8,20.0]},
+   {n:'AJ Bell',c:'#0891b2',ltm:23.0,d:'ajbell.co.uk',h:[18.0,18.5,17.0,16.0,15.5,16.5,18.0,20.0,22.0,24.0,25.0,24.0,22.0,20.0,19.0,18.0,17.5,18.0,19.0,20.0,21.0,22.0,21.5,22.0,23.0,22.5,23.0]},
+   {n:'Charles Schwab',c:'#059669',ltm:18.5,d:'schwab.com',h:[15.0,15.5,14.0,13.0,12.5,13.5,15.5,17.0,18.5,19.5,19.0,18.0,16.5,15.0,14.5,14.0,13.5,14.0,14.5,15.0,16.0,17.0,17.5,18.0,18.5,18.2,18.5]},
+   {n:'PensionBee',c:'#f59e0b',ltm:30.0,d:'pensionbee.com',note:'High-growth; EV/EBITDA elevated',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,35.0,32.0,30.0]},
+  ],
+  peerN:'UK retail wealth platforms. AJ Bell & Hargreaves Lansdown are primary LSE-listed comps. EV/EBITDA LTM. Source: Yahoo Finance (indicative).',
+  showAum:true,
+  notes:'MoneyBox: Entry Jan 2025 at 19.8x. AUM £11.7bn→£19.0bn (+63% in 4 quarters). EBITDA dipped Q2-Q3 2025 (investment phase), recovering to £18.5mm Q4. Mark at 1.44x.'
+ },
+ {id:'bold',fund:'FCP XIV',era:'quantic',color:CL.bold,name:'Bold Production Services',metric:'EBITDA',cur:'$',domain:'boldproduction.com',
+  desc:'Natural gas compression and production services company across major US onshore basins.',
+  entryDate:'June 2025',em:'5.0x EBITDA',emN:5.0,
+  q:null,rev:null,eb:null,em_:null,mk:null,
+  lev:{en:null,cu:null,s:[]},
+  peers:[
+   {n:'USA Compression',c:'#f97316',ltm:11.0,d:'usacompression.com',h:[8.5,8.8,8.0,7.5,7.0,7.5,8.5,9.0,9.5,10.0,10.5,10.0,9.5,9.0,9.0,9.5,10.0,10.5,10.5,10.5,10.5,10.5,10.5,11.0,11.0,10.8,11.0]},
+   {n:'Archrock',c:'#06b6d4',ltm:10.5,d:'archrock.com',h:[7.5,7.8,7.0,6.5,6.0,6.5,7.5,8.0,8.5,9.0,9.5,9.0,8.5,8.0,8.5,9.0,9.5,10.0,10.5,10.5,10.5,10.5,10.0,10.5,10.5,10.2,10.5]},
+   {n:'Kodiak Gas (IPO 2023)',c:'#8b5cf6',ltm:9.0,d:'kodiakgas.com',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9.5,9.2,9.0]},
+   {n:'Kinder Morgan',c:'#64748b',ltm:11.0,d:'kindermorgan.com',h:[9.5,9.8,9.0,8.5,8.0,8.5,9.5,10.0,10.5,11.0,11.0,10.5,10.0,9.5,9.5,10.0,10.5,11.0,11.0,11.0,11.0,11.0,10.5,11.0,11.0,10.8,11.0]},
+  ],
+  peerN:'US natural gas compression. Bold entry at 5.0x vs peer median ~10.5x — significant entry discount. Sector benefits from US LNG buildout. Source: Yahoo Finance (indicative).',
+  notes:'Bold Production Services: Entry June 2025 at 5.0x EBITDA — material discount to public peers (~10.5x median). No operational data yet. US LNG buildout drives compression demand growth.'
+ },
+ {id:'karo',fund:'FCP XV',era:'quantic',color:CL.karo,name:'Karo Healthcare',metric:'EBITDA',cur:'€',domain:'karohealthcare.com',
+  desc:'European OTC consumer healthcare and personal care company with diversified portfolio of established brands across Scandinavia and Europe.',
+  entryDate:'August 2025',em:'13.9x EBITDA',emN:13.9,
+  q:null,rev:null,eb:null,em_:null,mk:null,
+  lev:{en:null,cu:null,s:[]},
+  peers:[
+   {n:'Haleon',c:'#10b981',ltm:17.0,d:'haleon.com',note:'GSK spinoff 2022',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,15.0,16.0,17.0,17.5,17.0,17.5,16.5,16.0,15.5,16.0,16.5,17.0,16.8,17.0]},
+   {n:'Kenvue',c:'#f59e0b',ltm:15.0,d:'kenvue.com',note:'J&J spinoff 2023',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,14.5,14.8,15.0]},
+   {n:'Prestige Consumer',c:'#3b82f6',ltm:11.0,d:'prestigeconsumerhealth.com',h:[9.0,9.5,8.5,8.0,7.5,8.0,9.0,9.5,10.0,10.5,10.5,10.0,9.5,9.0,9.0,9.5,10.0,10.0,10.0,10.0,10.5,10.5,10.5,11.0,11.0,10.8,11.0]},
+   {n:'Jamieson Wellness',c:'#8b5cf6',ltm:14.5,d:'jamiesonwellness.com',h:[12.0,12.5,11.5,11.0,10.5,11.0,12.0,13.0,14.0,14.5,14.5,14.0,13.5,13.0,12.5,12.0,12.5,13.0,13.5,14.0,14.0,13.5,14.0,14.5,14.5,14.2,14.5]},
+   {n:'Reckitt',c:'#dc2626',ltm:12.0,d:'reckitt.com',h:[13.0,13.5,12.0,11.0,10.5,11.5,13.0,14.0,15.0,15.5,15.0,14.5,13.5,12.5,12.0,11.5,11.0,11.5,12.0,12.5,12.5,12.0,12.0,12.5,12.5,12.2,12.0]},
+   {n:'Beiersdorf',c:'#0891b2',ltm:18.0,d:'beiersdorf.com',h:[14.0,14.5,13.0,12.0,11.5,12.5,14.5,16.0,17.5,18.5,18.5,18.0,17.0,16.0,15.5,15.0,15.5,16.0,16.5,17.0,17.5,17.5,17.5,18.0,18.5,18.2,18.0]},
+  ],
+  peerN:'Consumer Health + Diversified Consumer (2 sub-groups). Entry 13.9x vs sector median ~14x. EV/EBITDA LTM. Source: Yahoo Finance (indicative).',
+  notes:'Karo Healthcare: Entry Aug 2025 at 13.9x. European OTC healthcare. No operational data yet. Entry broadly in line with consumer health sector median (~14x).'
+ },
+ {id:'teneo',fund:'FCP XVI',era:'quantic',color:CL.teneo,name:'Teneo',metric:'EBITDA',cur:'$',domain:'teneo.com',
+  desc:'Global CEO advisory firm integrating management consulting, communications, IR, and restructuring services.',
+  entryDate:'November 2025',em:'12.6x EBITDA',emN:12.6,
+  q:null,rev:null,eb:null,em_:null,mk:null,
+  lev:{en:null,cu:null,s:[]},
+  peers:[
+   {n:'Accenture',c:'#a855f7',ltm:19.5,d:'accenture.com',h:[14.5,15.0,13.5,12.5,12.0,13.0,14.5,16.0,17.5,18.5,19.0,18.5,17.5,16.5,16.0,15.5,15.5,16.0,16.5,17.0,18.0,18.5,18.5,19.0,19.5,19.2,19.5]},
+   {n:'FTI Consulting',c:'#3b82f6',ltm:14.0,d:'fticonsulting.com',h:[11.0,11.5,10.5,10.0,9.5,10.0,11.0,12.0,13.0,14.0,14.0,13.5,13.0,12.5,12.0,12.0,12.0,12.5,13.0,13.5,13.5,13.5,13.5,14.0,14.0,13.8,14.0]},
+   {n:'Huron Consulting',c:'#10b981',ltm:12.5,d:'huronconsultinggroup.com',h:[9.5,10.0,9.0,8.5,8.0,8.5,9.5,10.5,11.5,12.0,12.5,12.0,11.5,11.0,10.5,10.5,10.5,11.0,11.5,12.0,12.0,12.0,12.5,12.5,12.5,12.2,12.5]},
+   {n:'CRA (Charles River)',c:'#f59e0b',ltm:12.0,d:'crai.com',h:[9.0,9.5,8.5,8.0,7.5,8.0,9.0,10.0,11.0,11.5,11.5,11.0,10.5,10.0,10.0,10.0,10.0,10.5,11.0,11.0,11.0,11.5,11.5,12.0,12.0,11.8,12.0]},
+   {n:'Exponent',c:'#dc2626',ltm:27.0,d:'exponent.com',h:[22.0,23.0,21.0,20.0,19.0,20.0,23.0,26.0,28.0,30.0,29.0,28.0,26.0,24.0,23.0,22.5,22.0,23.0,24.0,25.0,25.5,25.5,26.0,26.5,27.0,26.8,27.0]},
+  ],
+  peerN:'Professional/management consulting. Teneo = CEO advisory niche. Entry 12.6x vs sector median ~14x (slight discount). Source: Yahoo Finance (indicative).',
+  notes:'Teneo: Entry Nov 2025 at 12.6x. Global CEO advisory — differentiated from traditional consulting. Entry at slight discount to peer median. No operational data yet.'
+ },
+ {id:'basf',fund:'FCP XVII',era:'quantic',color:CL.basf,name:'BASF Coatings',metric:'EBITDA',cur:'€',domain:'coatings.basf.com',
+  desc:'Global automotive and industrial coatings division, carved out from BASF SE. OEM and refinish coating solutions.',
+  entryDate:'January 2026',em:'9.7x EBITDA',emN:9.7,
+  q:null,rev:null,eb:null,em_:null,mk:null,
+  lev:{en:null,cu:null,s:[]},
+  peers:[
+   {n:'Axalta Coating Systems',c:'#2563eb',ltm:12.0,d:'axalta.com',h:[9.0,9.5,8.5,7.5,7.0,8.0,9.5,10.5,11.5,12.0,12.0,11.5,10.5,9.5,9.5,10.0,10.5,11.0,11.5,12.0,12.0,12.0,11.5,12.0,12.5,12.2,12.0]},
+   {n:'PPG Industries',c:'#f59e0b',ltm:13.0,d:'ppg.com',h:[10.5,11.0,9.5,8.5,8.0,9.0,10.5,11.5,12.5,13.0,13.0,12.5,11.5,10.5,10.0,10.5,11.0,11.5,12.0,12.5,12.5,12.5,12.5,12.5,13.0,12.8,13.0]},
+  ],
+  peerN:'Automotive/industrial coatings. Only two public pure-play peers. Entry 9.7x vs peer median ~12.5x — significant discount. Source: Yahoo Finance (indicative).',
+  notes:'BASF Coatings: Entry Jan 2026 at 9.7x EBITDA. Carved out from BASF SE. Meaningful discount to public peers (~12.5x median). Post-carve-out improvement potential. No operational data yet.'
+ },
+ {id:'goldengoose',fund:'FCP XVIII',era:'quantic',color:CL.goldengoose,name:'Golden Goose',metric:'EBIT',cur:'€',domain:'goldengoose.com',
+  metricNote:'EV/EBIT — not EBITDA',
+  desc:'Italian luxury sneaker and lifestyle brand — "lived-in" distressed aesthetic, strong millennial/Gen-Z brand loyalty globally.',
+  entryDate:'January 2026',em:'13.3x EBIT',emN:13.3,
+  q:null,rev:null,eb:null,em_:null,mk:null,
+  lev:{en:null,cu:null,s:[]},
+  peers:[
+   {n:'Hermès',c:'#b45309',ltm:32.0,d:'hermes.com',h:[25.0,26.0,23.0,22.0,20.0,22.0,26.0,30.0,35.0,38.0,38.0,36.0,33.0,30.0,28.0,26.0,25.0,26.0,27.0,28.0,30.0,31.0,30.0,31.0,32.0,31.8,32.0]},
+   {n:'Moncler',c:'#3b82f6',ltm:23.0,d:'monclergroup.com',h:[18.0,19.0,16.5,15.0,14.0,15.5,18.5,22.0,25.0,27.0,27.0,25.5,23.0,21.0,20.0,19.0,18.5,19.0,20.0,21.0,22.0,22.5,22.0,22.5,23.0,22.8,23.0]},
+   {n:'LVMH',c:'#7c3aed',ltm:14.0,d:'lvmh.com',h:[13.5,14.0,12.0,11.0,10.5,11.5,14.0,16.0,18.0,19.0,18.5,17.5,16.0,15.0,14.5,13.5,13.0,13.5,14.0,14.5,14.5,14.0,13.5,14.0,14.5,14.2,14.0]},
+   {n:'Prada',c:'#ec4899',ltm:21.0,d:'pradagroup.com',h:[14.0,14.5,12.5,11.5,11.0,12.0,14.5,17.0,19.0,21.0,21.5,20.5,18.5,17.0,16.5,16.0,15.5,16.0,17.0,18.0,19.0,20.0,19.5,20.0,21.0,20.8,21.0]},
+   {n:'Brunello Cucinelli',c:'#059669',ltm:31.0,d:'brunellocucinelli.com',h:[22.0,23.0,20.0,19.0,18.0,20.0,24.0,28.0,32.0,34.0,35.0,34.0,31.0,28.0,27.0,26.0,25.0,26.0,27.0,28.0,29.0,30.0,30.0,30.5,31.0,30.8,31.0]},
+   {n:'Kering',c:'#10b981',ltm:8.0,d:'kering.com',h:[11.0,11.5,9.5,8.5,8.0,9.0,11.5,14.0,16.0,18.0,17.0,15.5,14.0,12.5,12.0,11.0,10.0,10.5,11.0,10.5,10.0,9.0,8.5,8.5,8.5,8.2,8.0]},
+   {n:'Zegna',c:'#d97706',ltm:14.0,d:'zegna.com',note:'SPAC listing 2021',h:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,15.0,14.5,14.0,13.5,13.0,13.5,14.0,13.8,14.0]},
+  ],
+  peerN:'IMPORTANT: EV/EBIT (not EBITDA) to match FCP entry metric. Luxury fashion peers. Entry 13.3x EBIT vs sector median ~20x+ (below sector). Source: Yahoo Finance (indicative).',
+  notes:'Golden Goose: Entry Jan 2026 at 13.3x EBIT. CRITICAL: EBIT basis, not EBITDA. Entry well below luxury sector median EV/EBIT (~21x). Strong direct-to-consumer and international expansion potential.'
+ },
+];
+
+// ── PLOTLY CONFIG ──────────────────────────────────────────────────
+const BL={font:{family:'DM Sans,system-ui,sans-serif',size:11,color:'#475569'},paper_bgcolor:'transparent',plot_bgcolor:'transparent',margin:{t:10,r:16,b:50,l:50},xaxis:{showgrid:false,tickfont:{size:10,color:'#94a3b8'},linecolor:'#e2e8f0',zeroline:false},yaxis:{showgrid:true,gridcolor:'#f1f5f9',tickfont:{size:10,color:'#94a3b8'},linecolor:'#e2e8f0',zeroline:false},legend:{font:{size:10},orientation:'h',y:-0.22,x:0.5,xanchor:'center'},hovermode:'x unified',modebar:{remove:['lasso2d','select2d','autoScale2d']}};
+function bl(o={}){return Object.assign({},BL,o)}
+const PC={responsive:true,displayModeBar:true,displaylogo:false};
+
+// ── HTML GENERATION ────────────────────────────────────────────────
+function docCard(nm){return`<div class="doc" onclick="alert('${nm}: Add document link')"><div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="doc-name">${nm}</div><div class="doc-st">Add link</div></div>`}
+
+function buildSection(c){
+  const era=c.era==='quantic'?'qnt':'pre';
+  const eraLbl=c.era==='quantic'?'FCP-Quantic':'Pre-Quantic';
+  const ml=c.metric||'EBITDA';
+  const lastEB=c.eb?c.eb[c.eb.length-1]:null;
+  const lastMK=c.mk?c.mk[c.mk.length-1]:null;
+  const lastEM=c.em_?c.em_[c.em_.length-1]:null;
+  const mkCls=lastMK==null?'':(lastMK>=1.5?'mark-up':lastMK<1?'mark-dn':'mark-neu');
+
+  let meta='';
+  if(c.entryDate) meta+=`<div class="co-meta-item"><div class="co-meta-lbl">Entry Date</div><div class="co-meta-val">${c.entryDate}</div></div><div class="co-meta-item"><div class="co-meta-lbl">Entry Multiple</div><div class="co-meta-val hi">${c.em}</div></div>`;
+  if(lastEB!=null) meta+=`<div class="co-meta-item"><div class="co-meta-lbl">Latest ${ml}</div><div class="co-meta-val hi">${c.cur}${f1(lastEB)}mm</div></div>`;
+  if(lastMK!=null) meta+=`<div class="co-meta-item"><div class="co-meta-lbl">Val. Mark</div><div class="co-meta-val ${mkCls}">${f1(lastMK)}x</div></div>`;
+
+  let pchips=c.peers.map(p=>`<div class="peer-chip"><span class="cdot" style="background:${p.c}"></span>${p.n}${p.note?` <span style="font-size:9px;color:#94a3b8">(${p.note})</span>`:''}</div>`).join('');
+
+  // bench
+  let bench='';
+  if(c.noComps||!c.peers||!c.peers.length){
+    bench=`<div class="nodata"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><strong>No Comparables Available</strong><p>${c.peerN}</p></div>`;
+  } else if(c.specialViz==='jfk'){
+    bench=`<div class="entry-note">${c.peerN}</div><div class="chart-box"><div class="ch-title">NYC Airport Enplanements (millions) — Annual</div><div class="ch-sub">JFK demand context. Source: Port Authority of NY & NJ / FAA (indicative estimates). E = estimated.</div><div id="ch-jfkt6-enpl" style="height:320px"></div></div>`;
+  } else if(c.specialViz==='fisher'){
+    bench=`<div class="entry-note">${c.peerN}</div><div class="peer-chips">${pchips}</div><div class="chart-box"><div class="ch-title">P/FRE Multiple — Public Alt. Asset Managers (closest proxies)</div><div class="ch-sub">Fisher is private. Listed alt managers shown as FRE-valuation proxies. Double-click to isolate a series.</div><div id="ch-fisher-fre" style="height:300px"></div><div class="ch-src"><span class="avail av-ind">Indicative</span> Recent history only (various IPO dates). Source: public filings, Yahoo Finance.</div></div>`;
+  } else {
+    const livePeers=c.peers.filter(p=>p.ltm!=null);
+    const med=median(livePeers.map(p=>p.ltm));
+    const mn=mean(livePeers.map(p=>p.ltm));
+    let rows=c.peers.map(p=>{
+      if(p.note&&p.ltm==null) return`<tr><td><span class="cdot" style="background:${p.c}"></span>${p.n}</td><td class="num">—</td><td style="font-size:9px;color:#94a3b8">${p.note}</td></tr>`;
+      return`<tr><td><span class="cdot" style="background:${p.c}"></span>${p.n}</td><td class="num">${fx(p.ltm)}</td><td><span class="avail av-ind">Indicative</span></td></tr>`;
+    }).join('');
+    if(c.em) rows+=`<tr class="fcp"><td><span class="cdot" style="background:${c.color}"></span><strong>${c.name} (FCP Entry)</strong></td><td class="num">${c.em}</td><td><span class="avail av-ok">FCP Internal</span></td></tr>`;
+    if(med!=null){rows+=`<tr class="med"><td><em>Peer Median</em></td><td class="num"><em>${fx(med)}</em></td><td></td></tr>`;rows+=`<tr class="mn"><td><em>Peer Mean</em></td><td class="num"><em>${fx(mn)}</em></td><td></td></tr>`;}
+    bench=`
+      <div class="entry-note">${c.peerN}${c.metricNote?` <strong style="color:#d97706"> Metric: ${c.metricNote}</strong>`:''}</div>
+      <div class="peer-chips">${pchips}</div>
+      <div class="stat-bar">${med!=null?`<span class="stat-chip sc-med">Peer Median: ${fx(med)}</span>`:''} ${mn!=null?`<span class="stat-chip sc-mn">Peer Mean: ${fx(mn)}</span>`:''} ${c.em?`<span class="stat-chip sc-fcp">${c.fund} Entry: ${c.em}</span>`:''}</div>
+      <div class="chart-box"><div class="ch-title">Historical EV/${ml} — Peer Group</div><div class="ch-sub">Sector median = black dashed line (calculated quarter-by-quarter). Double-click a series to isolate.</div><div id="ch-${c.id}-hist" style="height:320px"></div><div class="ch-src"><span class="avail av-ind">Indicative</span> Peer multiples estimated from public sources. Verify with Bloomberg/FactSet for precision.</div></div>
+      <div class="chart-box"><div class="ch-title">Peer Snapshot — EV/${ml} LTM</div><div class="ch-sub">Current LTM multiples. Dashed line = median; dotted = mean.</div><div id="ch-${c.id}-snap" style="height:240px"></div></div>
+      ${c.em?`<div class="chart-box"><div class="ch-title">FCP Entry vs. Sector — ${ml} Multiple Timeline</div><div class="ch-sub">Black dashed = sector median over time. Star marker = FCP entry point and multiple. Above/below median visible at a glance.</div><div id="ch-${c.id}-evs" style="height:280px"></div></div>`:''}
+      <div class="ptable-wrap"><table class="ptable"><thead><tr><th>Company</th><th>EV/${ml} LTM</th><th>Data</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  // lev tab
+  let levTab='';
+  if(c.lev&&c.lev.s&&c.lev.s.length){
+    levTab=`<div class="lev-2col"><div class="lev-stat entry"><div class="lev-lbl">Leverage at Entry</div><div class="lev-val">${c.lev.en!=null?fx(c.lev.en):'—'}</div><div style="font-size:10px;color:#94a3b8;margin-top:3px">Net Debt / EBITDA · T0</div></div><div class="lev-stat curr"><div class="lev-lbl">Current Leverage</div><div class="lev-val">${c.lev.cu!=null?fx(c.lev.cu):'—'}</div><div style="font-size:10px;color:#94a3b8;margin-top:3px">Net Debt / EBITDA · latest</div></div></div><div class="chart-box"><div class="ch-title">Leverage Evolution — Net Debt / EBITDA</div><div class="ch-sub">Source: FCP Leverage sheet (internal). Quarterly from T0. 6.5x reference line shown.</div><div id="ch-${c.id}-lev" style="height:260px"></div></div>`;
+  } else {
+    levTab=`<div class="nodata"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><strong>Leverage Data Not Available</strong><p>${c.id==='moneybox'||c.id==='fisher'?'No leverage structure at entry.':'Leverage data not yet loaded for this investment.'}</p></div>`;
+  }
+
+  // overview tab
+  let ovTab='';
+  if(c.eb&&c.eb.length){
+    const aumSection=c.showAum&&c.aum?`<div class="chart-box"><div class="ch-title">Assets Under Management (AUM)</div><div class="ch-sub">Source: FCP internal data. AUM growing from £11.7bn to £19.0bn in 4 quarters.</div><div id="ch-moneybox-aum" style="height:200px"></div></div>`:'' ;
+    ovTab=`<div class="mcards">
+      ${c.rev?`<div class="mc"><div class="mc-lbl">Revenue (Latest)</div><div class="mc-val">${c.cur}${f1(c.rev[c.rev.length-1])}mm</div></div>`:''}
+      <div class="mc"><div class="mc-lbl">${ml} (Latest)</div><div class="mc-val">${c.cur}${f1(lastEB)}mm</div></div>
+      ${lastEM!=null?`<div class="mc"><div class="mc-lbl">EBITDA Margin</div><div class="mc-val">${fp(lastEM)}</div></div>`:''}
+      ${lastMK!=null?`<div class="mc"><div class="mc-lbl">Valuation Mark</div><div class="mc-val ${mkCls}">${f1(lastMK)}x</div></div>`:''}
+      ${c.lev.en!=null?`<div class="mc"><div class="mc-lbl">Lev. at Entry</div><div class="mc-val">${fx(c.lev.en)}</div></div>`:''}
+      ${c.lev.cu!=null?`<div class="mc"><div class="mc-lbl">Lev. (Current)</div><div class="mc-val">${fx(c.lev.cu)}</div></div>`:''}
+    </div>
+    ${aumSection}
+    <div class="charts2">
+      <div class="chart-box"><div class="ch-title">${c.rev?'Revenue & ':''} ${ml} (${c.cur}mm)</div><div class="ch-sub">Source: FCP internal operating data.</div><div id="ch-${c.id}-re" style="height:270px"></div></div>
+      <div class="chart-box"><div class="ch-title">EBITDA Margin % &amp; Valuation Mark (index)</div><div class="ch-sub">Source: FCP internal data. Mark indexed: 1.0x = entry cost.</div><div id="ch-${c.id}-mm" style="height:270px"></div></div>
+    </div>`;
+  } else {
+    ovTab=`<div class="nodata"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><strong>Operating Data Not Yet Available</strong><p>Entry: ${c.entryDate||'N/A'}. Data will populate once quarterly reporting begins.</p></div>`;
+  }
+
+  return`<div class="co" id="${c.id}">
+  <div class="co-hdr">
+    <div class="co-logo"><img src="https://logo.clearbit.com/${c.domain}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="${c.name}"><div class="co-logo-ph" style="display:none">${c.name.split(' ').slice(0,2).map(w=>w[0]).join('')}</div></div>
+    <div class="co-info">
+      <span class="co-fund ${era}">${c.fund} · ${eraLbl}</span>
+      <div class="co-name">${c.name}${c.metricNote?`<span class="mnt">${c.metricNote}</span>`:''}</div>
+      <div class="co-desc">${c.desc}</div>
+    </div>
+    <div class="co-meta">${meta}</div>
+  </div>
+  <div class="tabs" id="tabs-${c.id}">
+    <button class="tab on" onclick="swTab('${c.id}','ov',this)">Overview</button>
+    <button class="tab" onclick="swTab('${c.id}','bm',this)">Benchmarking</button>
+    <button class="tab" onclick="swTab('${c.id}','lv',this)">Leverage</button>
+    <button class="tab" onclick="swTab('${c.id}','dr',this)">Dataroom</button>
+  </div>
+  <div id="${c.id}-ov" class="pane on">${ovTab}</div>
+  <div id="${c.id}-bm" class="pane">${bench}</div>
+  <div id="${c.id}-lv" class="pane">${levTab}</div>
+  <div id="${c.id}-dr" class="pane">
+    <div class="dr-grid">${['Investment Memo','IC Memo','DDH','CIM','Financial Model','Management Presentation','Other Documents'].map(docCard).join('')}</div>
+    <div class="notes-box"><strong>${c.name}:</strong><br>${c.notes}</div>
+  </div>
+</div>`;
+}
+
+function renderAll(){
+  const cont=document.getElementById('co-container');
+  let html=`<div class="era-sep"><div class="era-line"></div><div class="era-badge pre">Pre-Quantic — FCP I through FCP XII</div><div class="era-line"></div></div>`;
+  DS.filter(c=>c.era==='pre').forEach(c=>{html+=buildSection(c)});
+  html+=`<div class="era-sep"><div class="era-line"></div><div class="era-badge qnt">FCP-Quantic — FCP XIII through FCP XVIII</div><div class="era-line"></div></div>`;
+  DS.filter(c=>c.era==='quantic').forEach(c=>{html+=buildSection(c)});
+  cont.innerHTML=html;
+}
+
+// ── TAB SWITCH ────────────────────────────────────────────────────
+function swTab(id,tab,btn){
+  ['ov','bm','lv','dr'].forEach(t=>{const el=document.getElementById(`${id}-${t}`);if(el)el.classList.remove('on')});
+  const el=document.getElementById(`${id}-${tab}`);if(el)el.classList.add('on');
+  document.querySelectorAll(`#tabs-${id} .tab`).forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  lazyCharts(id,tab);
+}
+
+// ── LAZY CHART RENDER ─────────────────────────────────────────────
+const done=new Set();
+function lazyCharts(id,tab){
+  const key=`${id}-${tab}`;
+  if(done.has(key))return;
+  done.add(key);
+  const c=DS.find(x=>x.id===id);
+  if(!c)return;
+  if(tab==='ov')renderOvCharts(c);
+  if(tab==='bm')renderBmCharts(c);
+  if(tab==='lv')renderLvChart(c);
+}
+
+// ── OVERVIEW CHARTS ────────────────────────────────────────────────
+function renderOvCharts(c){
+  // Rev + EBITDA
+  const elRE=document.getElementById(`ch-${c.id}-re`);
+  if(elRE&&c.eb){
+    const t=[];
+    if(c.rev) t.push({x:c.q,y:c.rev,name:'Revenue',type:'bar',marker:{color:c.color+'22'},yaxis:'y2',opacity:0.8});
+    t.push({x:c.q,y:c.eb,name:c.metric,type:'scatter',mode:'lines+markers',line:{color:c.color,width:2.5},marker:{size:5,color:c.color},fill:'tozeroy',fillcolor:c.color+'18'});
+    Plotly.newPlot(elRE,t,bl({yaxis:{showgrid:true,gridcolor:'#f1f5f9',tickfont:{size:10,color:'#94a3b8'},title:{text:`${c.metric} (${c.cur}mm)`,font:{size:10}}},yaxis2:c.rev?{overlaying:'y',side:'right',showgrid:false,tickfont:{size:10,color:'#94a3b8'},title:{text:`Revenue`,font:{size:10}}}:undefined,margin:{t:10,r:c.rev?55:16,b:60,l:55}}),PC);
+  }
+  // Margin + Mark
+  const elMM=document.getElementById(`ch-${c.id}-mm`);
+  if(elMM&&(c.em_||c.mk)){
+    const t2=[];
+    if(c.em_) t2.push({x:c.q,y:c.em_,name:'EBITDA Margin %',type:'scatter',mode:'lines+markers',line:{color:c.color,width:2},marker:{size:4},fill:'tozeroy',fillcolor:c.color+'15'});
+    if(c.mk) t2.push({x:c.q,y:c.mk,name:'Val. Mark (x)',type:'scatter',mode:'lines+markers',line:{color:'#d97706',width:2,dash:'dot'},marker:{size:4,color:'#d97706'},yaxis:'y2'});
+    Plotly.newPlot(elMM,t2,bl({yaxis:{title:{text:'EBITDA Margin %',font:{size:10}},ticksuffix:'%',showgrid:true,gridcolor:'#f1f5f9',tickfont:{size:10}},yaxis2:{overlaying:'y',side:'right',showgrid:false,tickfont:{size:10},title:{text:'Val. Mark (x)',font:{size:10}}},margin:{t:10,r:55,b:60,l:55}}),PC);
+  }
+  // MoneyBox AUM
+  if(c.id==='moneybox'&&c.aum){
+    const el=document.getElementById('ch-moneybox-aum');
+    if(el) Plotly.newPlot(el,[{x:c.q,y:c.aum.map(v=>+(v/1e9).toFixed(2)),name:'AUM (£bn)',type:'bar',marker:{color:CL.moneybox,opacity:0.85}}],bl({showlegend:false,yaxis:{title:{text:'AUM (£bn)',font:{size:10}}},margin:{t:10,r:16,b:50,l:65}}),PC);
+  }
+}
+
+// ── BENCHMARKING CHARTS ───────────────────────────────────────────
+function renderBmCharts(c){
+  if(!c.peers||!c.peers.length) return;
+
+  // JFK
+  if(c.specialViz==='jfk'){
+    const el=document.getElementById('ch-jfkt6-enpl');
+    if(el) Plotly.newPlot(el,[
+      {x:c.enpl.labs,y:c.enpl.jfk,name:'JFK',type:'bar',marker:{color:CL.jfkt6,opacity:0.85}},
+      {x:c.enpl.labs,y:c.enpl.lga,name:'LaGuardia',type:'bar',marker:{color:'#94a3b8',opacity:0.65}},
+      {x:c.enpl.labs,y:c.enpl.ewr,name:'Newark EWR',type:'bar',marker:{color:'#cbd5e1',opacity:0.65}},
+    ],bl({barmode:'group',yaxis:{title:{text:'Enplanements (millions)',font:{size:10}}}}),PC);
+    return;
+  }
+
+  // Fisher FRE
+  if(c.specialViz==='fisher'){
+    const el=document.getElementById('ch-fisher-fre');
+    if(!el)return;
+    const t=c.peers.map(p=>({x:Q27,y:p.h,name:p.n,type:'scatter',mode:'lines',line:{color:p.c,width:1.8},connectgaps:false}));
+    const medL=Q27.map((_,i)=>median(c.peers.filter(p=>p.h&&p.h[i]!=null).map(p=>p.h[i])));
+    t.push({x:Q27,y:medL,name:'Peer Median (P/FRE)',type:'scatter',mode:'lines',line:{color:'#0f172a',width:2.5,dash:'dot'}});
+    Plotly.newPlot(el,t,bl({yaxis:{title:{text:'P/FRE Multiple',font:{size:10}}},margin:{t:10,r:16,b:80,l:50}}),PC);
+    return;
+  }
+
+  // Historical multiples
+  const elH=document.getElementById(`ch-${c.id}-hist`);
+  if(elH){
+    const t=c.peers.map(p=>({x:Q27,y:p.h,name:p.n,type:'scatter',mode:'lines',line:{color:p.c,width:1.8},connectgaps:false,hovertemplate:`${p.n}: %{y:.1f}x<extra></extra>`}));
+    const medL=Q27.map((_,i)=>median(c.peers.filter(p=>p.h&&p.h[i]!=null).map(p=>p.h[i])));
+    t.push({x:Q27,y:medL,name:'Sector Median',type:'scatter',mode:'lines',line:{color:'#0f172a',width:2.5,dash:'dot'},hovertemplate:'Sector Median: %{y:.1f}x<extra></extra>'});
+    const shapes=[],annots=[];
+    if(c.emN){
+      const qm={'January 2025':'1Q25','June 2025':'2Q25','August 2025':'3Q25','November 2025':'4Q25','January 2026':'1Q26'};
+      const eq=qm[c.entryDate];
+      if(eq){
+        shapes.push({type:'line',x0:eq,x1:eq,y0:0,y1:1,yref:'paper',line:{color:c.color,width:2,dash:'dashdot'}});
+        t.push({x:[eq],y:[c.emN],name:`FCP Entry (${c.em})`,type:'scatter',mode:'markers',marker:{size:12,color:c.color,symbol:'star',line:{color:'#fff',width:1.5}}});
+      }
+    }
+    Plotly.newPlot(elH,t,bl({shapes,annots,yaxis:{title:{text:`EV/${c.metric}`,font:{size:10}}},margin:{t:10,r:16,b:80,l:50}}),PC);
+  }
+
+  // Snapshot bar
+  const elS=document.getElementById(`ch-${c.id}-snap`);
+  if(elS){
+    const lp=c.peers.filter(p=>p.ltm!=null);
+    if(lp.length){
+      const med=median(lp.map(p=>p.ltm)),mn=mean(lp.map(p=>p.ltm));
+      const nx=[...lp.map(p=>p.n)],ny=[...lp.map(p=>p.ltm)],nc=[...lp.map(p=>p.c)];
+      if(c.emN){nx.push(`${c.fund} Entry`);ny.push(c.emN);nc.push(c.color);}
+      Plotly.newPlot(elS,[{x:nx,y:ny,type:'bar',marker:{color:nc,opacity:0.85},text:ny.map(v=>fx(v)),textposition:'outside',textfont:{size:9}}],
+        bl({showlegend:false,shapes:[{type:'line',x0:-.5,x1:nx.length-.5,y0:med,y1:med,line:{color:'#0f172a',width:2,dash:'dot'}},{type:'line',x0:-.5,x1:nx.length-.5,y0:mn,y1:mn,line:{color:'#059669',width:1.5,dash:'dash'}}],xaxis:{tickangle:-30,tickfont:{size:10}},yaxis:{title:{text:`EV/${c.metric}`,font:{size:10}}},margin:{t:20,r:16,b:80,l:50}}),PC);
+    }
+  }
+
+  // Entry vs Sector
+  const elE=document.getElementById(`ch-${c.id}-evs`);
+  if(elE&&c.emN){
+    const medL=Q27.map((_,i)=>median(c.peers.filter(p=>p.h&&p.h[i]!=null).map(p=>p.h[i])));
+    const t=[{x:Q27,y:medL,name:'Sector Median',type:'scatter',mode:'lines',line:{color:'#0f172a',width:2.5,dash:'dot'}}];
+    const qm={'January 2025':'1Q25','June 2025':'2Q25','August 2025':'3Q25','November 2025':'4Q25','January 2026':'1Q26'};
+    const eq=qm[c.entryDate],annots=[];
+    if(eq){
+      t.push({x:[eq],y:[c.emN],name:`FCP Entry`,type:'scatter',mode:'markers',marker:{size:14,color:c.color,symbol:'star',line:{color:'#fff',width:1.5}}});
+      const mAtE=medL[Q27.indexOf(eq)];
+      annots.push({x:eq,y:c.emN,text:`FCP: ${c.em}`,showarrow:true,arrowhead:2,ax:50,ay:-30,font:{size:11,color:c.color},bgcolor:'#fff',bordercolor:c.color,borderwidth:1});
+      if(mAtE) annots.push({x:eq,y:mAtE,text:`Median: ${fx(mAtE)}`,showarrow:false,font:{size:10,color:'#374151'},bgcolor:'#f1f5f9',borderwidth:0,xshift:55});
+    }
+    Plotly.newPlot(elE,t,bl({annotations:annots,yaxis:{title:{text:`EV/${c.metric}`,font:{size:10}}},margin:{t:15,r:16,b:60,l:50}}),PC);
+  }
+}
+
+// ── LEVERAGE CHART ─────────────────────────────────────────────────
+function renderLvChart(c){
+  if(!c.lev||!c.lev.s||!c.lev.s.length)return;
+  const el=document.getElementById(`ch-${c.id}-lev`);
+  if(!el)return;
+  const n=c.lev.s.length;
+  const labs=Array.from({length:n},(_,i)=>i===0?'T0':`Q${i}`);
+  Plotly.newPlot(el,[
+    {x:labs,y:c.lev.s,name:'Net Debt/EBITDA',type:'scatter',mode:'lines+markers',line:{color:c.color,width:2.5},marker:{size:6,color:c.color},fill:'tozeroy',fillcolor:c.color+'18'},
+    {x:labs,y:Array(n).fill(6.5),name:'Ref: 6.5x',type:'scatter',mode:'lines',line:{color:'#ef4444',width:1.5,dash:'dot'},opacity:0.5}
+  ],bl({yaxis:{title:{text:'Net Debt / EBITDA',font:{size:10}},ticksuffix:'x'}}),PC);
+}
+
+// ── OVERVIEW SECTION CHARTS ────────────────────────────────────────
+function renderOvSection(){
+  // Valuation marks
+  const elM=document.getElementById('ch-ov-marks');
+  if(elM){
+    const t=DS.filter(c=>c.mk&&c.mk.length>0).map(c=>({x:c.q,y:c.mk,name:c.name,type:'scatter',mode:'lines',line:{color:c.color,width:2},hovertemplate:`${c.name}: %{y:.2f}x<extra></extra>`}));
+    t.push({x:Q27,y:Array(Q27.length).fill(1),name:'Cost (1.0x)',type:'scatter',mode:'lines',line:{color:'#94a3b8',width:1,dash:'dot'},showlegend:true});
+    Plotly.newPlot(elM,t,bl({yaxis:{title:{text:'Valuation Mark (x)',font:{size:10}},ticksuffix:'x'},margin:{t:10,r:16,b:90,l:55}}),PC);
+  }
+  // Latest EBITDA
+  const elE=document.getElementById('ch-ov-ebitda');
+  if(elE){
+    const d=DS.filter(c=>c.eb&&c.eb.length>0).map(c=>({nm:c.name,v:c.eb[c.eb.length-1],cl:c.color,cu:c.cur})).sort((a,b)=>b.v-a.v);
+    Plotly.newPlot(elE,[{y:d.map(x=>x.nm),x:d.map(x=>x.v),type:'bar',orientation:'h',marker:{color:d.map(x=>x.cl),opacity:0.85},text:d.map(x=>`${x.cu}${f1(x.v)}mm`),textposition:'outside',textfont:{size:9}}],
+      bl({showlegend:false,margin:{t:10,r:70,b:40,l:145},xaxis:{title:{text:'EBITDA (local currency, mm)',font:{size:10}}},yaxis:{showgrid:false,tickfont:{size:10}}}),PC);
+  }
+  // Leverage comparison
+  const elL=document.getElementById('ch-ov-lev');
+  if(elL){
+    const ld=DS.filter(c=>c.lev&&c.lev.en!=null&&c.lev.cu!=null);
+    Plotly.newPlot(elL,[
+      {x:ld.map(c=>c.name),y:ld.map(c=>c.lev.en),name:'At Entry',type:'bar',marker:{color:ld.map(c=>c.color),opacity:0.45}},
+      {x:ld.map(c=>c.name),y:ld.map(c=>c.lev.cu),name:'Current',type:'bar',marker:{color:ld.map(c=>c.color),opacity:0.9}},
+    ],bl({barmode:'group',shapes:[{type:'line',x0:-.5,x1:ld.length-.5,y0:6,y1:6,line:{color:'#ef4444',width:1.5,dash:'dot'}}],annotations:[{x:ld.length-.5,y:6.2,text:'6.0x',xanchor:'right',showarrow:false,font:{size:9,color:'#ef4444'}}],yaxis:{title:{text:'Net Debt / EBITDA',font:{size:10}},ticksuffix:'x'},xaxis:{tickangle:-25,tickfont:{size:10}},margin:{t:20,r:16,b:90,l:55}}),PC);
+  }
+  // Summary table
+  const t=document.getElementById('sum-table');
+  if(t){
+    t.innerHTML=`<thead><tr><th>Fund</th><th>Company</th><th>Era</th><th>Primary Metric</th><th>Entry Multiple</th><th>Latest EBITDA</th><th>Val. Mark</th><th>Lev. Entry</th><th>Lev. Current</th></tr></thead><tbody>${DS.map(c=>{
+      const lE=c.eb?c.eb[c.eb.length-1]:null;
+      const lM=c.mk?c.mk[c.mk.length-1]:null;
+      const mc=lM==null?'':(lM>=1.5?'mark-up':lM<1?'mark-dn':'mark-neu');
+      return`<tr><td><strong>${c.fund}</strong></td><td>${c.name}</td><td><span class="ec ${c.era==='quantic'?'qnt':'pre'}">${c.era==='quantic'?'Quantic':'Pre-Quantic'}</span></td><td style="font-size:10px">${c.metric}</td><td class="num">${c.em||'—'}</td><td class="num">${lE!=null?`${c.cur}${f1(lE)}mm`:'—'}</td><td class="num ${mc}">${lM!=null?fx(lM):'—'}</td><td class="num">${c.lev&&c.lev.en!=null?fx(c.lev.en):'—'}</td><td class="num">${c.lev&&c.lev.cu!=null?fx(c.lev.cu):'—'}</td></tr>`;
+    }).join('')}</tbody>`;
+  }
+}
+
+// ── SIDEBAR ACTIVE ─────────────────────────────────────────────────
+function setActive(el){document.querySelectorAll('.sb-nav a').forEach(a=>a.classList.remove('active'));el.classList.add('active')}
+
+function onScroll(){
+  const ids=['overview',...DS.map(c=>c.id)];
+  let cur='overview';
+  for(const id of ids){const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<100)cur=id;}
+  document.querySelectorAll('.sb-nav a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));
+}
+
+// ── REFRESH ────────────────────────────────────────────────────────
+function doRefresh(){
+  const btn=document.getElementById('btn-ref');
+  btn.classList.add('spinning');btn.disabled=true;
+  setTimeout(()=>{
+    done.clear();
+    renderOvSection();
+    DS.forEach(c=>{done.add(`${c.id}-ov`);renderOvCharts(c);});
+    btn.classList.remove('spinning');btn.disabled=false;
+  },700);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  renderAll();
+  renderOvSection();
+  DS.forEach(c=>{done.add(`${c.id}-ov`);renderOvCharts(c);});
+  document.getElementById('main').addEventListener('scroll',onScroll,{passive:true});
+});
+</script>
+</body>
+</html>
